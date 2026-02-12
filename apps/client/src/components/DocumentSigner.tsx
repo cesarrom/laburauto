@@ -314,7 +314,7 @@ export const DocumentSigner = ({
 
               {stages
                 .filter(s => mode !== 'signer' || s.id === activeStageId)
-                .map((stage, idx) => {
+                .map((stage) => {
                   const isSignerActive = mode === 'signer' && stage.id === activeStageId;
 
                   return (

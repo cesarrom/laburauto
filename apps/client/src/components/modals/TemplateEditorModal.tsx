@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import api from '../../lib/api';
 import { DocumentSigner } from '../DocumentSigner';
 import { Upload, X } from 'lucide-react';
-import type { SDKResult } from '@laburauto/shared';
+import type { SDKResult, SignerInitialData } from '@laburauto/shared';
 
 interface TemplateEditorModalProps {
   template: any | null;
@@ -17,7 +17,7 @@ export default function TemplateEditorModal({ template, onClose, onSave }: Templ
   const [type, setType] = useState<'publisher_enrollment' | 'rental_agreement'>(
     template?.type || 'rental_agreement'
   );
-  const [pdfFileData, setPdfFileData] = useState<Uint8Array | null>(null);
+  const [pdfFileData, setPdfFileData] = useState<SignerInitialData['pdfFile'] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getPresetStages = (templateType: string) => {
@@ -55,7 +55,7 @@ export default function TemplateEditorModal({ template, onClose, onSave }: Templ
     if (!file) return;
 
     const arrayBuffer = await file.arrayBuffer();
-    setPdfFileData(new Uint8Array(arrayBuffer));
+    setPdfFileData(new Uint8Array(arrayBuffer) as SignerInitialData['pdfFile']);
   };
 
   const handleDesignComplete = async (result: SDKResult) => {

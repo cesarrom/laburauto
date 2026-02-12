@@ -1,4 +1,4 @@
-import { X, Check, FileText, ExternalLink, Calendar, MapPin, Gauge } from 'lucide-react';
+import { X, Check, FileText, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 
 interface VehicleReviewModalProps {

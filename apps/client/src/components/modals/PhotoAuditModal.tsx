@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { X, Camera, CheckCircle, AlertCircle, Loader2, Minus, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { X, Camera, AlertCircle, Loader2, Minus, Plus } from 'lucide-react';
 import api from '../../lib/api';
 
 interface PhotoAuditModalProps {

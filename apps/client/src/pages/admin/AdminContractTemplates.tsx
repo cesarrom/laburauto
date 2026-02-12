@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../lib/api';
-import { FileText, Plus, Edit2, Trash2, Eye } from 'lucide-react';
+import { FileText, Plus, Edit2, Trash2 } from 'lucide-react';
 import TemplateEditorModal from '../../components/modals/TemplateEditorModal';
 
 export default function AdminContractTemplates() {

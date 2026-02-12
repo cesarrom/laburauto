@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import api from '../lib/api';
-import { CreditCard, ExternalLink, History, Shield, Zap, CheckCircle2, Calendar, AlertCircle, ShieldAlert, Clock, AlertTriangle } from 'lucide-react';
+import { CreditCard, ExternalLink, History, CheckCircle2, ShieldAlert, Clock, AlertTriangle } from 'lucide-react';
 
 interface Execution {
   id: string | number;

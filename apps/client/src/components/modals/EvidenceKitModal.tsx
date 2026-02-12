@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Shield, FileText, Camera, CreditCard, User, CheckCircle, Download, ExternalLink } from 'lucide-react';
+import { X, Shield, FileText, CreditCard, Download, ExternalLink } from 'lucide-react';
 import api from '../../lib/api';
 import ReputationTool from '../ReputationTool';
 

@@ -13,7 +13,6 @@ export default function ReputationTool({ userId, currentScore, onSuccess }: Repu
   const queryClient = useQueryClient();
   const [adjustment, setAdjustment] = useState<number>(0);
   const [reason, setReason] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const mutation = useMutation({

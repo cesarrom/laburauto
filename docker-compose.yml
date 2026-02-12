@@ -14,26 +14,26 @@ services:
       context: .
       dockerfile: apps/server/Dockerfile
       target: server
-    volumes:
-      - ./apps/server:/prod/server
-      - /prod/server/node_modules
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/laburauto
-      - PORT=3000
+      DATABASE_URL: postgres://postgres:postgres@db:5432/laburauto
+      PORT: 3000
+      NODE_ENV: production
+      BASE_URL: ${API_BASE_URL:-https://api.auto.askn.us}
+      FRONTEND_URL: ${FRONTEND_URL:-https://auto.askn.us}
     depends_on:
       - db
-    command: pnpm dev
+    command: pnpm start
 
   client:
     build:
       context: .
       dockerfile: apps/client/Dockerfile
       target: client
-    volumes:
-      - ./apps/client:/prod/client
-      - /prod/client/node_modules
+      args:
+        VITE_API_URL: ${VITE_API_URL:-https://api.auto.askn.us/api}
     environment:
-      - VITE_API_URL=http://localhost:3000/api
+      VITE_API_URL: ${VITE_API_URL:-https://api.auto.askn.us/api}
+      NODE_ENV: production
     depends_on:
       - server
 

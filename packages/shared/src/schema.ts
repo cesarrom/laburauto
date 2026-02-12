@@ -1,6 +1,6 @@
 import { pgTable, serial, text, integer, timestamp, boolean, doublePrecision, uuid, jsonb, unique } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { Field, Stage } from './signer';
+import type { Field, Stage } from './signer';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
