@@ -6,8 +6,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: laburauto
-    ports:
-      - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
 
@@ -34,8 +32,6 @@ services:
       context: .
       dockerfile: apps/client/Dockerfile
       target: client
-    ports:
-      - "5173:5173"
     volumes:
       - ./apps/client:/prod/client
       - /prod/client/node_modules
