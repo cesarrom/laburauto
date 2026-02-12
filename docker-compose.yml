@@ -14,9 +14,6 @@ services:
       context: .
       dockerfile: apps/server/Dockerfile
       target: server
-    ports:
-      - "3000:3000"
-      - "9229:9229"
     volumes:
       - ./apps/server:/prod/server
       - /prod/server/node_modules
