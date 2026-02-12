@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -131,7 +132,7 @@ export const DocumentSigner = ({
       // Cancelar tarea previa antes de iniciar una nueva
       if (renderTaskRef.current) {
         renderTaskRef.current.cancel();
-        try { await renderTaskRef.current.promise; } catch (e) { }
+        try { await renderTaskRef.current.promise; } catch (e) { console.error(e); }
       }
 
       const page = await pdfDoc.getPage(pageNo);
@@ -148,7 +149,8 @@ export const DocumentSigner = ({
 
       await renderTask.promise;
       renderTaskRef.current = null;
-    } catch (err: any) {
+    } catch (errRef) {
+      const err = errRef as Error;
       if (err.name !== 'RenderingCancelledException') {
         console.error("Error de renderizado:", err);
       }
