@@ -7,8 +7,9 @@ FROM base AS build
 COPY . /usr/src/app
 WORKDIR /usr/src/app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm --filter server build || true
+RUN pnpm --filter server build
 RUN pnpm deploy --filter=server --legacy /prod/server
+RUN cp -r apps/server/dist /prod/server/dist
 
 FROM base AS server
 COPY --from=build /prod/server /prod/server
