@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import api from '../../lib/api';
-import { AlertCircle, FileText, CheckCircle, Shield, X, Download, User, Car } from 'lucide-react';
+import { AlertCircle, Shield, User, Car } from 'lucide-react';
 import EvidenceKitModal from '../../components/modals/EvidenceKitModal';
 
 export default function AdminDisputes() {
-  const queryClient = useQueryClient();
   const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
 
   const { data: disputes, isLoading } = useQuery({
