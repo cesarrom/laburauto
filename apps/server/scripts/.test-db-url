@@ -1,0 +1,1 @@
+postgresql://test_user:test_password@localhost:5434/laburauto_test

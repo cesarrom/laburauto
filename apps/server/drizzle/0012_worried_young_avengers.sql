@@ -1,0 +1,3 @@
+ALTER TABLE "contract_instances" ADD COLUMN "stage_3_completed_at" timestamp;--> statement-breakpoint
+ALTER TABLE "contract_instances" ADD COLUMN "stage_3_completed_by" integer;--> statement-breakpoint
+ALTER TABLE "contract_instances" ADD CONSTRAINT "contract_instances_stage_3_completed_by_users_id_fk" FOREIGN KEY ("stage_3_completed_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;

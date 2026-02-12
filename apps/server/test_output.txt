@@ -1,0 +1,47 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/Users/cesarrom/code/laburauto/apps/server[39m
+
+[90mstdout[2m | tests/integration/audit_flows.test.ts[2m > [22m[2mAudit Trail Integration[2m > [22m[2mshould audit auth events (register, login)
+[22m[39m[AUDIT] auth.register on user:10 by user:10
+
+[90mstdout[2m | tests/integration/audit_flows.test.ts[2m > [22m[2mAudit Trail Integration[2m > [22m[2mshould audit auth events (register, login)
+[22m[39m[AUDIT] auth.login on user:10 by user:10
+
+[90mstdout[2m | tests/integration/audit_flows.test.ts[2m > [22m[2mAudit Trail Integration[2m > [22m[2mshould audit vehicle creation
+[22m[39m[AUDIT] vehicle.create on vehicle:6 by user:1
+
+ [31m❯[39m tests/integration/audit_flows.test.ts [2m([22m[2m3 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 639[2mms[22m[39m
+     [33m[2m✓[22m[39m should audit auth events (register, login) [33m 451[2mms[22m[39m
+     [32m✓[39m should audit vehicle creation[32m 104[2mms[22m[39m
+[31m     [31m×[31m should audit booking creation[39m[32m 82[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/integration/audit_flows.test.ts[2m > [22mAudit Trail Integration[2m > [22mshould audit booking creation
+[31m[1mError[22m: Failed query: insert into "vehicles" ("id", "publisher_id", "photos", "document_urls", "vehicle_model_id", "year", "plate", "mileage", "color", "description", "idle_lat", "idle_long", "idle_address", "access_instructions", "payment_instructions", "status", "created_at", "last_odometer", "next_service_odometer", "reviewed_at", "reviewed_by", "rejection_reason") values (default, $1, default, default, $2, $3, $4, $5, $6, default, default, default, default, default, default, $7, default, default, default, default, default, default) returning "id", "publisher_id", "photos", "document_urls", "vehicle_model_id", "year", "plate", "mileage", "color", "description", "idle_lat", "idle_long", "idle_address", "access_instructions", "payment_instructions", "status", "created_at", "last_odometer", "next_service_odometer", "reviewed_at", "reviewed_by", "rejection_reason"
+params: 1,1,2020,BKG123,10,Blue,active[39m
+[90m [2m❯[22m PostgresJsPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.1_@types+better-sqlite3@7.6.13_better-sqlite3@12.6.2_postgres@3.4.8/node_modules/drizzle-orm/pg-core/session.js:[2m41:15[22m[39m
+[90m [2m❯[22m ../../node_modules/.pnpm/drizzle-orm@0.45.1_@types+better-sqlite3@7.6.13_better-sqlite3@12.6.2_postgres@3.4.8/node_modules/drizzle-orm/postgres-js/session.js:[2m37:20[22m[39m
+[36m [2m❯[22m tests/integration/audit_flows.test.ts:[2m127:23[22m[39m
+    [90m125| [39m    ])[33m.[39m[34mreturning[39m()[33m;[39m
+    [90m126| [39m
+    [90m127| [39m    [35mconst[39m [vehicle] [33m=[39m [35mawait[39m db[33m.[39m[34minsert[39m(vehicles)[33m.[39m[34mvalues[39m({
+    [90m   | [39m                      [31m^[39m
+    [90m128| [39m      publisherId: 1, vehicleModelId: 1, plate: 'BKG123', year: 2020, …
+    [90m129| [39m    })[33m.[39m[34mreturning[39m()[33m;[39m
+
+[31m[1mCaused by: PostgresError[22m: invalid input syntax for type uuid: "1"[39m
+[90m [2m❯[22m ErrorResponse ../../node_modules/.pnpm/postgres@3.4.8/node_modules/postgres/src/connection.js:[2m815:30[22m[39m
+[90m [2m❯[22m handle ../../node_modules/.pnpm/postgres@3.4.8/node_modules/postgres/src/connection.js:[2m489:6[22m[39m
+[90m [2m❯[22m Socket.data ../../node_modules/.pnpm/postgres@3.4.8/node_modules/postgres/src/connection.js:[2m324:9[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ severity_local: 'ERROR', severity: 'ERROR', code: '22P02', where: 'unnamed portal parameter $2 = \'...\'', file: 'uuid.c', routine: 'string_to_uuid', query: 'insert into "vehicles" ("id", "publisher_id", "photos", "document_urls", "vehicle_model_id", "year", "plate", "mileage", "color", "description", "idle_lat", "idle_long", "idle_address", "access_instructions", "payment_instructions", "status", "created_at", "last_odometer", "next_service_odometer", "reviewed_at", "reviewed_by", "rejection_reason") values (default, $1, default, default, $2, $3, $4, $5, $6, default, default, default, default, default, default, $7, default, default, default, default, default, default) returning "id", "publisher_id", "photos", "document_urls", "vehicle_model_id", "year", "plate", "mileage", "color", "description", "idle_lat", "idle_long", "idle_address", "access_instructions", "payment_instructions", "status", "created_at", "last_odometer", "next_service_odometer", "reviewed_at", "reviewed_by", "rejection_reason"', parameters: [ '1', '1', '2020', 'BKG123', '10', 'Blue', 'active' ], args: [ 1, 1, 2020, 'BKG123', 10, 'Blue', 'active' ], types: [ 23, 2950, 23, 25, 23, 25, 25 ] }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (3)[39m
+[2m   Start at [22m 15:29:50
+[2m   Duration [22m 2.18s[2m (transform 457ms, setup 67ms, import 1.18s, tests 639ms, environment 0ms)[22m
+

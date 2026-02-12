@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: laburauto
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  server:
+    build: 
+      context: .
+      dockerfile: apps/server/Dockerfile
+      target: server
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    volumes:
+      - ./apps/server:/prod/server
+      - /prod/server/node_modules
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/laburauto
+      - PORT=3000
+    depends_on:
+      - db
+    command: pnpm dev
+
+  client:
+    build:
+      context: .
+      dockerfile: apps/client/Dockerfile
+      target: client
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./apps/client:/prod/client
+      - /prod/client/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:3000/api
+    depends_on:
+      - server
+
+volumes:
+  db-data:

@@ -1,0 +1,1 @@
+ALTER TABLE "bookings" ALTER COLUMN "status" SET DEFAULT 'pending_publisher_signature';

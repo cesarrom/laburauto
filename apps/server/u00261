@@ -1,0 +1,589 @@
+time="2026-02-03T14:59:04-03:00" level=warning msg="/Users/cesarrom/code/laburauto/apps/server/docker-compose.test.tmp.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container laburauto-test-db  Creating
+ Container laburauto-test-db  Created
+ Container laburauto-test-db  Starting
+ Container laburauto-test-db  Started
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mLocation Sharing[2m > [22m[2mshould allow location access when booking is confirmed and within 2h
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mLocation Sharing[2m > [22m[2mshould allow location access when booking is confirmed and within 2h
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mLocation Sharing[2m > [22m[2mshould allow location access when booking is confirmed and within 2h
+[22m[39mCould not fetch proof URL for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/bookings.ts:163:24 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mLocation Sharing[2m > [22m[2mshould NOT share location for pending_payment status
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mLocation Sharing[2m > [22m[2mshould NOT share location for pending_payment status
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mCancellation[2m > [22m[2mshould allow publisher to cancel confirmed booking with refund
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mCancellation[2m > [22m[2mshould allow publisher to cancel confirmed booking with refund
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mCancellation[2m > [22m[2mshould allow publisher to cancel confirmed booking with refund
+[22m[39mCould not fetch proof URL for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/bookings.ts:163:24 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mCancellation[2m > [22m[2mshould NOT allow cancellation of active rental
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mCancellation[2m > [22m[2mshould NOT allow cancellation of active rental
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mCancellation[2m > [22m[2mshould NOT allow cancellation of active rental
+[22m[39mCould not fetch proof URL for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/bookings.ts:163:24 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mCancellation[2m > [22m[2mshould allow cancellation before payment without refund
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/bookings/location-and-cancellation.test.ts[2m > [22m[2mIntegration: Location Sharing & Cancellation[2m > [22m[2mCancellation[2m > [22m[2mshould allow cancellation before payment without refund
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/rental-lifecycle/comprehensive-flow.test.ts[2m > [22m[2mComprehensive Rental Flow Integration[2m > [22m[2mshould complete a Full Happy Path with Signing
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/rental-lifecycle/comprehensive-flow.test.ts[2m > [22m[2mComprehensive Rental Flow Integration[2m > [22m[2mshould complete a Full Happy Path with Signing
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/rental-lifecycle/comprehensive-flow.test.ts[2m > [22m[2mComprehensive Rental Flow Integration[2m > [22m[2mshould handle Dispute: Wrong Amount Sent
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/rental-lifecycle/comprehensive-flow.test.ts[2m > [22m[2mComprehensive Rental Flow Integration[2m > [22m[2mshould handle Dispute: Wrong Amount Sent
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/rental-lifecycle/comprehensive-flow.test.ts[2m > [22m[2mComprehensive Rental Flow Integration[2m > [22m[2mshould handle Dispute: Wrong Amount Sent
+[22m[39mCould not fetch proof URL for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/bookings.ts:163:24 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/rental-lifecycle/comprehensive-flow.test.ts[2m > [22m[2mComprehensive Rental Flow Integration[2m > [22m[2mshould handle Cancellation: Fuerza Mayor
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/rental-lifecycle/comprehensive-flow.test.ts[2m > [22m[2mComprehensive Rental Flow Integration[2m > [22m[2mshould handle Cancellation: Fuerza Mayor
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/rental-lifecycle/comprehensive-flow.test.ts[2m > [22m[2mComprehensive Rental Flow Integration[2m > [22m[2mshould handle Cancellation: Fuerza Mayor
+[22m[39mCould not fetch proof URL for hashing: TypeError: Failed to parse URL from url
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/bookings.ts:163:24 {
+  [cause]: TypeError: Invalid URL
+  [90m    at new NodeError (node:internal/errors:405:5)[39m
+  [90m    at new URL (node:internal/url:637:13)[39m
+  [90m    at new _Request (node:internal/deps/undici/undici:5055:25)[39m
+  [90m    at fetch2 (node:internal/deps/undici/undici:9195:25)[39m
+  [90m    at Object.fetch (node:internal/deps/undici/undici:11370:18)[39m
+  [90m    at fetch (node:internal/process/pre_execution:242:25)[39m
+      at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/bookings.ts:163:30
+  [90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m {
+    input: [32m'url'[39m,
+    code: [32m'ERR_INVALID_URL'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/contracts/contracts.test.ts[2m > [22m[2mSystems Integration: Contract Templates & Signing[2m > [22m[2mshould create a template and use it for a rental agreement
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/contracts/contracts.test.ts[2m > [22m[2mSystems Integration: Contract Templates & Signing[2m > [22m[2mshould create a template and use it for a rental agreement
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/contracts/contracts.test.ts[2m > [22m[2mSystems Integration: Contract Templates & Signing[2m > [22m[2mshould create a template and use it for a rental agreement
+[22m[39mCould not fetch proof URL for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/bookings.ts:163:24 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/photo-audits/advanced-features.test.ts[2m > [22m[2mAdvanced Features: Contracts, Audits & Admin[2m > [22m[2mContract System & Photo Audits
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/photo-audits/advanced-features.test.ts[2m > [22m[2mAdvanced Features: Contracts, Audits & Admin[2m > [22m[2mContract System & Photo Audits
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/photo-audits/advanced-features.test.ts[2m > [22m[2mAdvanced Features: Contracts, Audits & Admin[2m > [22m[2mContract System & Photo Audits[2m > [22m[2mshould successfully submit check-in audit and update vehicle lastOdometer
+[22m[39mCould not fetch photo for hashing: TypeError: Failed to parse URL from url1
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/photo-audits.ts:31:26 {
+  [cause]: TypeError: Invalid URL
+  [90m    at new NodeError (node:internal/errors:405:5)[39m
+  [90m    at new URL (node:internal/url:637:13)[39m
+  [90m    at new _Request (node:internal/deps/undici/undici:5055:25)[39m
+  [90m    at fetch2 (node:internal/deps/undici/undici:9195:25)[39m
+  [90m    at Object.fetch (node:internal/deps/undici/undici:11370:18)[39m
+  [90m    at fetch (node:internal/process/pre_execution:242:25)[39m
+      at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/photo-audits.ts:31:32
+      at Layer.handleRequest (/Users/cesarrom/code/laburauto/node_modules/[4m.pnpm[24m/router@2.2.0/node_modules/[4mrouter[24m/lib/layer.js:152:17)
+      at next (/Users/cesarrom/code/laburauto/node_modules/[4m.pnpm[24m/router@2.2.0/node_modules/[4mrouter[24m/lib/route.js:157:13)
+      at Route.dispatch (/Users/cesarrom/code/laburauto/node_modules/[4m.pnpm[24m/router@2.2.0/node_modules/[4mrouter[24m/lib/route.js:117:3) {
+    input: [32m'url1'[39m,
+    code: [32m'ERR_INVALID_URL'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/photo-audits/advanced-features.test.ts[2m > [22m[2mAdvanced Features: Contracts, Audits & Admin[2m > [22m[2mContract System & Photo Audits[2m > [22m[2mshould successfully submit check-in audit and update vehicle lastOdometer
+[22m[39mCould not fetch photo for hashing: TypeError: Failed to parse URL from url2
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/photo-audits.ts:31:26 {
+  [cause]: TypeError: Invalid URL
+  [90m    at new NodeError (node:internal/errors:405:5)[39m
+  [90m    at new URL (node:internal/url:637:13)[39m
+  [90m    at new _Request (node:internal/deps/undici/undici:5055:25)[39m
+  [90m    at fetch2 (node:internal/deps/undici/undici:9195:25)[39m
+  [90m    at Object.fetch (node:internal/deps/undici/undici:11370:18)[39m
+  [90m    at fetch (node:internal/process/pre_execution:242:25)[39m
+      at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/photo-audits.ts:31:32
+  [90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m {
+    input: [32m'url2'[39m,
+    code: [32m'ERR_INVALID_URL'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/photo-audits/advanced-features.test.ts[2m > [22m[2mAdvanced Features: Contracts, Audits & Admin[2m > [22m[2mContract System & Photo Audits[2m > [22m[2mshould complete booking on check-out audit
+[22m[39mCould not fetch photo for hashing: TypeError: Failed to parse URL from url3
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/photo-audits.ts:31:26 {
+  [cause]: TypeError: Invalid URL
+  [90m    at new NodeError (node:internal/errors:405:5)[39m
+  [90m    at new URL (node:internal/url:637:13)[39m
+  [90m    at new _Request (node:internal/deps/undici/undici:5055:25)[39m
+  [90m    at fetch2 (node:internal/deps/undici/undici:9195:25)[39m
+  [90m    at Object.fetch (node:internal/deps/undici/undici:11370:18)[39m
+  [90m    at fetch (node:internal/process/pre_execution:242:25)[39m
+      at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/photo-audits.ts:31:32
+      at Layer.handleRequest (/Users/cesarrom/code/laburauto/node_modules/[4m.pnpm[24m/router@2.2.0/node_modules/[4mrouter[24m/lib/layer.js:152:17)
+      at next (/Users/cesarrom/code/laburauto/node_modules/[4m.pnpm[24m/router@2.2.0/node_modules/[4mrouter[24m/lib/route.js:157:13)
+      at Route.dispatch (/Users/cesarrom/code/laburauto/node_modules/[4m.pnpm[24m/router@2.2.0/node_modules/[4mrouter[24m/lib/route.js:117:3) {
+    input: [32m'url3'[39m,
+    code: [32m'ERR_INVALID_URL'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/contracts/email-tracking.test.ts[2m > [22m[2mEmail Delivery and Tracking[2m > [22m[2mshould trigger email and track opening
+[22m[39mSign error: {}
+
+[90mstderr[2m | tests/integration/payments/payment-flow.test.ts[2m > [22m[2mIntegration: Payment Fraud Prevention[2m > [22m[2mshould handle legitimate payment flow with proof
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/payments/payment-flow.test.ts[2m > [22m[2mIntegration: Payment Fraud Prevention[2m > [22m[2mshould handle legitimate payment flow with proof
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/payments/payment-flow.test.ts[2m > [22m[2mIntegration: Payment Fraud Prevention[2m > [22m[2mshould handle legitimate payment flow with proof
+[22m[39mCould not fetch proof URL for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/bookings.ts:163:24 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/payments/payment-flow.test.ts[2m > [22m[2mIntegration: Payment Fraud Prevention[2m > [22m[2mshould flag dispute when renter denies publisher denial
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/payments/payment-flow.test.ts[2m > [22m[2mIntegration: Payment Fraud Prevention[2m > [22m[2mshould flag dispute when renter denies publisher denial
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/payments/payment-flow.test.ts[2m > [22m[2mIntegration: Payment Fraud Prevention[2m > [22m[2mshould flag dispute when renter denies publisher denial
+[22m[39mDrizzleQueryError: Failed query: select "id", "vehicle_id", "renter_id", "selected_dates", "selected_shift_ids", "total_price", "status", "payment_deadline", "created_at", "reviewed_at" from "rental_applications" "rentalApplications" where "rentalApplications"."id" = $1 limit $2
+params: NaN,1
+    at PostgresJsPreparedQuery.queryWithCache (file:///Users/cesarrom/code/laburauto/node_modules/[4m.pnpm[24m/drizzle-orm@0.45.1_@types+better-sqlite3@7.6.13_better-sqlite3@12.6.2_postgres@3.4.8/node_modules/[4mdrizzle-orm[24m/pg-core/session.js:41:15)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at file:///Users/cesarrom/code/laburauto/node_modules/[4m.pnpm[24m/drizzle-orm@0.45.1_@types+better-sqlite3@7.6.13_better-sqlite3@12.6.2_postgres@3.4.8/node_modules/[4mdrizzle-orm[24m/postgres-js/session.js:37:20
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/applications.ts:240:25 {
+  query: [32m'select "id", "vehicle_id", "renter_id", "selected_dates", "selected_shift_ids", "total_price", "status", "payment_deadline", "created_at", "reviewed_at" from "rental_applications" "rentalApplications" where "rentalApplications"."id" = $1 limit $2'[39m,
+  params: [ [33mNaN[39m, [33m1[39m ],
+  cause: PostgresError: invalid input syntax for type integer: "NaN"
+      at ErrorResponse (file:///Users/cesarrom/code/laburauto/node_modules/[4m.pnpm[24m/postgres@3.4.8/node_modules/[4mpostgres[24m/src/connection.js:815:30)
+      at handle (file:///Users/cesarrom/code/laburauto/node_modules/[4m.pnpm[24m/postgres@3.4.8/node_modules/[4mpostgres[24m/src/connection.js:489:6)
+      at Socket.data (file:///Users/cesarrom/code/laburauto/node_modules/[4m.pnpm[24m/postgres@3.4.8/node_modules/[4mpostgres[24m/src/connection.js:324:9)
+  [90m    at Socket.emit (node:events:517:28)[39m
+  [90m    at addChunk (node:internal/streams/readable:335:12)[39m
+  [90m    at readableAddChunk (node:internal/streams/readable:308:9)[39m
+  [90m    at Socket.Readable.push (node:internal/streams/readable:245:10)[39m
+  [90m    at TCP.onStreamRead (node:internal/stream_base_commons:190:23)[39m {
+    severity_local: [32m'ERROR'[39m,
+    severity: [32m'ERROR'[39m,
+    code: [32m'22P02'[39m,
+    where: [32m"unnamed portal parameter $1 = '...'"[39m,
+    file: [32m'numutils.c'[39m,
+    line: [32m'232'[39m,
+    routine: [32m'pg_strtoint32'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/payments/payment-flow.test.ts[2m > [22m[2mIntegration: Payment Fraud Prevention[2m > [22m[2mshould auto-expire bookings past payment deadline
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/payments/payment-flow.test.ts[2m > [22m[2mIntegration: Payment Fraud Prevention[2m > [22m[2mshould auto-expire bookings past payment deadline
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/payments/payment-flow.test.ts[2m > [22m[2mIntegration: Payment Fraud Prevention[2m > [22m[2mshould not expire bookings with future deadline
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/payments/payment-flow.test.ts[2m > [22m[2mIntegration: Payment Fraud Prevention[2m > [22m[2mshould not expire bookings with future deadline
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/applications/application-validation.test.ts[2m > [22m[2mRental Application Integration[2m > [22m[2mshould create application when inputs are valid
+[22m[39mDEBUG: inserting shifts [33m2[39m
+
+[90mstderr[2m | tests/integration/applications/application-validation.test.ts[2m > [22m[2mRental Application Integration[2m > [22m[2mshould create application when inputs are valid
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/applications/application-validation.test.ts[2m > [22m[2mRental Application Integration[2m > [22m[2mshould return 400 if dates are in the past
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/applications/application-validation.test.ts[2m > [22m[2mRental Application Integration[2m > [22m[2mshould return 400 if dates are in the past
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/applications/application-validation.test.ts[2m > [22m[2mRental Application Integration[2m > [22m[2mshould return 400 if renter verification is missing
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/applications/application-validation.test.ts[2m > [22m[2mRental Application Integration[2m > [22m[2mshould return 400 if renter verification is missing
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/applications/application-validation.test.ts[2m > [22m[2mRental Application Integration[2m > [22m[2mApplication Review (Approve/Reject)[2m > [22m[2mshould approve application and create booking
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/applications/application-validation.test.ts[2m > [22m[2mRental Application Integration[2m > [22m[2mApplication Review (Approve/Reject)[2m > [22m[2mshould approve application and create booking
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/applications/application-validation.test.ts[2m > [22m[2mRental Application Integration[2m > [22m[2mApplication Review (Approve/Reject)[2m > [22m[2mshould reject application
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/applications/application-validation.test.ts[2m > [22m[2mRental Application Integration[2m > [22m[2mApplication Review (Approve/Reject)[2m > [22m[2mshould reject application
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/applications/application-validation.test.ts[2m > [22m[2mRental Application Integration[2m > [22m[2mApplication Review (Approve/Reject)[2m > [22m[2mshould return 404 if application not found
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/applications/application-validation.test.ts[2m > [22m[2mRental Application Integration[2m > [22m[2mApplication Review (Approve/Reject)[2m > [22m[2mshould return 404 if application not found
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/legal/dispute-scenarios.test.ts[2m > [22m[2mLegal Scenario: Payment Dispute[2m > [22m[2mshould generate complete audit trail when renter claims payment but publisher disputes
+[22m[39mCould not fetch proof URL for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/bookings.ts:163:24 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/legal/dispute-scenarios.test.ts[2m > [22m[2mLegal Scenario: Payment Dispute[2m > [22m[2mshould prove chronological sequence of events in payment dispute
+[22m[39mCould not fetch proof URL for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/bookings.ts:163:24 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/legal/dispute-scenarios.test.ts[2m > [22m[2mLegal Scenario: Vehicle Damage Claim[2m > [22m[2mshould prove vehicle condition at check-in vs check-out
+[22m[39mCould not fetch photo for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/photo-audits.ts:31:26 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/legal/dispute-scenarios.test.ts[2m > [22m[2mLegal Scenario: Vehicle Damage Claim[2m > [22m[2mshould prove vehicle condition at check-in vs check-out
+[22m[39mCould not fetch photo for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/photo-audits.ts:31:26 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/legal/dispute-scenarios.test.ts[2m > [22m[2mLegal Scenario: Vehicle Damage Claim[2m > [22m[2mshould prove vehicle condition at check-in vs check-out
+[22m[39mCould not fetch photo for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/photo-audits.ts:31:26 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/legal/dispute-scenarios.test.ts[2m > [22m[2mLegal Scenario: Vehicle Damage Claim[2m > [22m[2mshould prove vehicle condition at check-in vs check-out
+[22m[39mCould not fetch photo for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/photo-audits.ts:31:26 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/legal/dispute-scenarios.test.ts[2m > [22m[2mLegal Scenario: Vehicle Damage Claim[2m > [22m[2mshould prove vehicle condition at check-in vs check-out
+[22m[39mCould not fetch photo for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/photo-audits.ts:31:26 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/legal/dispute-scenarios.test.ts[2m > [22m[2mLegal Scenario: Vehicle Damage Claim[2m > [22m[2mshould prove vehicle condition at check-in vs check-out
+[22m[39mCould not fetch photo for hashing: TypeError: fetch failed
+[90m    at Object.fetch (node:internal/deps/undici/undici:11372:11)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/photo-audits.ts:31:26 {
+  cause: Error: getaddrinfo ENOTFOUND example.com
+  [90m    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:108:26)[39m {
+    errno: [33m-3008[39m,
+    code: [32m'ENOTFOUND'[39m,
+    syscall: [32m'getaddrinfo'[39m,
+    hostname: [32m'example.com'[39m
+  }
+}
+
+[90mstderr[2m | tests/integration/audit/audit-api.test.ts[2m > [22m[2mAudit Trail Integration[2m > [22m[2mshould audit vehicle creation
+[22m[39mDEBUG: inserting shifts [33m1[39m
+
+[90mstderr[2m | tests/integration/audit/audit-api.test.ts[2m > [22m[2mAudit Trail Integration[2m > [22m[2mshould audit vehicle creation
+[22m[39mDEBUG: shifts insert result success
+
+[90mstderr[2m | tests/integration/auth/magic-links.test.ts[2m > [22m[2mMagic Link Integration[2m > [22m[2mshould fail for expired tokens
+[22m[39mMagic login error: Error: Invalid, expired, or already used magic link
+    at Function.verifyAndConsume [90m(/Users/cesarrom/code/laburauto/apps/server/[39msrc/services/magicLinkService.ts:56:13[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/auth.ts:263:18
+
+[90mstderr[2m | tests/integration/auth/magic-links.test.ts[2m > [22m[2mMagic Link Integration[2m > [22m[2mshould fail for already used tokens
+[22m[39mMagic login error: Error: Invalid, expired, or already used magic link
+    at Function.verifyAndConsume [90m(/Users/cesarrom/code/laburauto/apps/server/[39msrc/services/magicLinkService.ts:56:13[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:95:5)[39m
+    at [90m/Users/cesarrom/code/laburauto/apps/server/[39msrc/routes/auth.ts:263:18
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 8 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/integration/bookings/location-and-cancellation.test.ts[2m > [22mIntegration: Location Sharing & Cancellation[2m > [22mCancellation[2m > [22mshould NOT allow cancellation of active rental
+[31m[1mAssertionError[22m: expected 200 to be 400 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 400[39m
+[31m+ 200[39m
+
+[36m [2m❯[22m tests/integration/bookings/location-and-cancellation.test.ts:[2m217:32[22m[39m
+    [90m215| [39m
+    [90m216| [39m      const cancelRes = await cancelByPublisher(app, publisher.token, …
+    [90m217| [39m      [34mexpect[39m(cancelRes[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m400[39m)[33m;[39m
+    [90m   | [39m                               [31m^[39m
+    [90m218| [39m      expect(cancelRes.body.error).toContain('Cannot cancel active ren…
+    [90m219| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/auth/authorization.test.ts[2m > [22mAuthorization Middleware[2m > [22mAdmin route protection[2m > [22mshould allow admin to approve vehicle
+[31m[1mError[22m: Failed to ensure user: {}[39m
+[36m [2m❯[22m Module.ensureUser tests/helpers/api-utils.ts:[2m40:9[22m[39m
+    [90m 38| [39m  }
+    [90m 39| [39m
+    [90m 40| [39m  throw new Error(`Failed to ensure user: ${JSON.stringify(response.bo…
+    [90m   | [39m        [31m^[39m
+    [90m 41| [39m}
+    [90m 42| [39m
+[90m [2m❯[22m tests/integration/auth/authorization.test.ts:[2m52:20[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/contracts/contracts.test.ts[2m > [22mSystems Integration: Contract Templates & Signing[2m > [22mshould create a template and use it for a rental agreement
+[31m[1mAssertionError[22m: expected 400 to be 200 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 400[39m
+
+[36m [2m❯[22m tests/integration/contracts/contracts.test.ts:[2m141:29[22m[39m
+    [90m139| [39m      fields: [{ id: 'f3', type: 'signature', value: 'data:image/png;b…
+    [90m140| [39m    })[33m;[39m
+    [90m141| [39m    [34mexpect[39m(sign1Res[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m200[39m)[33m;[39m
+    [90m   | [39m                            [31m^[39m
+    [90m142| [39m    [34mexpect[39m(sign1Res[33m.[39mbody[33m.[39minstance[33m.[39mstage1CompletedAt)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m143| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/contracts/email-tracking.test.ts[2m > [22mEmail Delivery and Tracking[2m > [22mshould trigger email and track opening
+[31m[1mAssertionError[22m: expected 404 to be 200 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 404[39m
+
+[36m [2m❯[22m tests/integration/contracts/email-tracking.test.ts:[2m135:24[22m[39m
+    [90m133| [39m      console[33m.[39m[34merror[39m([32m'Sign error:'[39m[33m,[39m res[33m.[39mbody)[33m;[39m
+    [90m134| [39m    }
+    [90m135| [39m    [34mexpect[39m(res[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m200[39m)[33m;[39m
+    [90m   | [39m                       [31m^[39m
+    [90m136| [39m
+    [90m137| [39m    [90m// 3. Verify Email was sent (mocked)[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/payments/payment-flow.test.ts[2m > [22mIntegration: Payment Fraud Prevention[2m > [22mshould flag dispute when renter denies publisher denial
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'id')[39m
+[36m [2m❯[22m tests/integration/payments/payment-flow.test.ts:[2m140:57[22m[39m
+    [90m138| [39m    const booking = await db.query.bookings.findFirst({ where: eq(sche…
+    [90m139| [39m
+    [90m140| [39m    await uploadPaymentProof(app, renter.token, booking.id, 'https://e…
+    [90m   | [39m                                                        [31m^[39m
+    [90m141| [39m
+    [90m142| [39m    const disputeRes = await disputePayment(app, renter.token, booking…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/photo-audits/advanced-features.test.ts[2m > [22mAdvanced Features: Contracts, Audits & Admin[2m > [22mContract System & Photo Audits[2m > [22mshould submit a signature result via API
+[31m[1mAssertionError[22m: expected 403 to be 200 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 403[39m
+
+[36m [2m❯[22m tests/integration/photo-audits/advanced-features.test.ts:[2m173:26[22m[39m
+    [90m171| [39m        })[33m;[39m
+    [90m172| [39m
+    [90m173| [39m      [34mexpect[39m(res[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m200[39m)[33m;[39m
+    [90m   | [39m                         [31m^[39m
+    [90m174| [39m      [34mexpect[39m(res[33m.[39mbody[33m.[39mstatus)[33m.[39m[34mtoBe[39m([32m'signed'[39m)[33m;[39m
+    [90m175| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/photo-audits/advanced-features.test.ts[2m > [22mAdvanced Features: Contracts, Audits & Admin[2m > [22mContract System & Photo Audits[2m > [22mshould generate a consolidated evidence kit for an admin
+[31m[1mAssertionError[22m: expected 'pending' to be 'signed' // Object.is equality[39m
+
+Expected: [32m"signed"[39m
+Received: [31m"pending"[39m
+
+[36m [2m❯[22m tests/integration/photo-audits/advanced-features.test.ts:[2m232:40[22m[39m
+    [90m230| [39m      [34mexpect[39m(res[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m200[39m)[33m;[39m
+    [90m231| [39m      [34mexpect[39m(res[33m.[39mbody[33m.[39mlegalIdentity[33m.[39mrenterName)[33m.[39m[34mtoBe[39m([32m'Renter'[39m)[33m;[39m
+    [90m232| [39m      [34mexpect[39m(res[33m.[39mbody[33m.[39mcontract[33m.[39mstatus)[33m.[39m[34mtoBe[39m([32m'signed'[39m)[33m;[39m
+    [90m   | [39m                                       [31m^[39m
+    [90m233| [39m      expect(res.body.auditHistory).toHaveLength(2); // check_in and c…
+    [90m234| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/rental-lifecycle/comprehensive-flow.test.ts[2m > [22mComprehensive Rental Flow Integration[2m > [22mshould complete a Full Happy Path with Signing
+[31m[1mAssertionError[22m: expected 400 to be 200 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 400[39m
+
+[36m [2m❯[22m tests/integration/rental-lifecycle/comprehensive-flow.test.ts:[2m172:29[22m[39m
+    [90m170| [39m      signedPdfUrl[33m:[39m [32m'https://example.com/signed-st1.pdf'[39m
+    [90m171| [39m    })[33m;[39m
+    [90m172| [39m    [34mexpect[39m(sign1Res[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m200[39m)[33m;[39m
+    [90m   | [39m                            [31m^[39m
+    [90m173| [39m
+    [90m174| [39m    [90m// 4. Renter Signs Contract (Stage 2)[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯[22m[39m
+

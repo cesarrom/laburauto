@@ -1,0 +1,104 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1769199447735,
+      "tag": "0000_general_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1769199465231,
+      "tag": "0001_list_of_vehicles",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769443181511,
+      "tag": "0002_material_pyro",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1769531460965,
+      "tag": "0003_overconfident_shatterstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1769547919699,
+      "tag": "0004_tense_brother_voodoo",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1769628893730,
+      "tag": "0005_lumpy_medusa",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1769633221834,
+      "tag": "0006_contract_template_enhancements",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1769633364539,
+      "tag": "0007_contract_template_enhancements_new_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1769637363226,
+      "tag": "0008_faithful_harry_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1769709892161,
+      "tag": "0009_overconfident_thena",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1769715189426,
+      "tag": "0010_pink_mongoose",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1770051746948,
+      "tag": "0011_yellow_romulus",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1770138149880,
+      "tag": "0012_worried_young_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1770236552076,
+      "tag": "0013_needy_wolf_cub",
+      "breakpoints": true
+    }
+  ]
+}
