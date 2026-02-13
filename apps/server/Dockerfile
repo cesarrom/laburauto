@@ -9,7 +9,8 @@ WORKDIR /usr/src/app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm --filter server build
 RUN pnpm deploy --filter=server --legacy /prod/server
-RUN cp -r apps/server/dist /prod/server/dist
+RUN rm -rf /prod/server/dist && mkdir -p /prod/server/dist \
+    && cp -r apps/server/dist/. /prod/server/dist
 
 FROM base AS server
 COPY --from=build /prod/server /prod/server
