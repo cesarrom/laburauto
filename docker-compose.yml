@@ -29,11 +29,6 @@ services:
       context: .
       dockerfile: apps/client/Dockerfile
       target: client
-      args:
-        VITE_API_URL: ${VITE_API_URL:-https://api.auto.askn.us/api}
-    environment:
-      VITE_API_URL: ${VITE_API_URL:-https://api.auto.askn.us/api}
-      NODE_ENV: production
     depends_on:
       - server
 
