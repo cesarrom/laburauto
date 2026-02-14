@@ -9,9 +9,7 @@ WORKDIR /usr/src/app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm --filter server build
 RUN pnpm deploy --filter=server --legacy /prod/server
-
-FROM base AS server
-COPY --from=build /prod/server /prod/server
+RUN echo "$(ls -la)"
 WORKDIR /prod/server
 RUN echo "$(ls -la)"
 EXPOSE 3000
