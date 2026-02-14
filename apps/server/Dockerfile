@@ -9,4 +9,4 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm --filter @laburauto/server build
 EXPOSE 3000
 EXPOSE 9229
-CMD [ "node", "dist/apps/server/src/index.js" ]
+CMD [ "node", "/usr/src/app/dist/apps/server/src/index.js" ]
