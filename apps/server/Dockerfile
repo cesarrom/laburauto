@@ -9,9 +9,9 @@ WORKDIR /usr/src/app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm --filter server build
 RUN pnpm deploy --filter=server --legacy /prod/server
-RUN echo "$(ls -la)"
+RUN tree -L 2 -I 'node_modules'
 WORKDIR /prod/server
-RUN echo "$(ls -la)"
+RUN tree -L 2 -I 'node_modules'
 EXPOSE 3000
 EXPOSE 9229
 CMD [ "node", "dist/apps/server/src/index.js" ]
