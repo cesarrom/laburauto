@@ -13,7 +13,6 @@ services:
     build: 
       context: .
       dockerfile: apps/server/Dockerfile
-      target: server
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/laburauto
       PORT: 3000
