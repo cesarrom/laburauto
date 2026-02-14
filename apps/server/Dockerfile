@@ -13,6 +13,7 @@ RUN pnpm deploy --filter=server --legacy /prod/server
 FROM base AS server
 COPY --from=build /prod/server /prod/server
 WORKDIR /prod/server
+RUN echo "$(ls -la)"
 EXPOSE 3000
 EXPOSE 9229
 CMD [ "node", "dist/apps/server/src/index.js" ]
