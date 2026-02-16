@@ -9,6 +9,7 @@ ENV VITE_API_URL=$VITE_API_URL
 COPY . /usr/src/app
 WORKDIR /usr/src/app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm --filter @laburauto/shared build
 RUN pnpm --filter @laburauto/client build
 
 FROM nginx:1.27-alpine AS client
