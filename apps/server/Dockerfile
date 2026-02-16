@@ -10,7 +10,6 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm --filter @laburauto/shared build
 RUN pnpm --filter server build
 RUN pnpm --filter=server --legacy deploy deployed
-RUN find /app/deployed/node_modules -type d -name "@laburauto" -exec sh -c 'cp -r /app/packages/shared/dist "$1/shared/"' _ {} \;
 
 FROM base AS production
 COPY --from=build /app/deployed /app/deployed

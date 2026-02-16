@@ -13,6 +13,7 @@ services:
     build: 
       context: .
       dockerfile: apps/server/Dockerfile
+    command: ["sleep", "10000000"]
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/laburauto
       PORT: 3000
@@ -22,7 +23,7 @@ services:
       VITE_API_URL: ${VITE_API_URL:-https://api.auto.askn.us}
     depends_on:
       - db
-    command: pnpm start
+    restart: unless-stopped
 
   client:
     build:
