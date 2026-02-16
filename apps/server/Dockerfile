@@ -4,18 +4,17 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
 FROM base AS build
-COPY . /usr/src/app
-WORKDIR /usr/src/app
+COPY . /app
+WORKDIR /app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm --filter @laburauto/shared build
 RUN pnpm --filter server build
-RUN pnpm deploy --filter=server --legacy /prod/server
-RUN cp -r /usr/src/app/apps/server/dist /prod/server/dist
-RUN find /prod/server/node_modules -type d -name "@laburauto" -exec sh -c 'cp -r /usr/src/app/packages/shared/dist "$1/shared/"' _ {} \;
+RUN pnpm --filter=server --legacy deploy deployed
+RUN find /app/deployed/node_modules -type d -name "@laburauto" -exec sh -c 'cp -r /app/packages/shared/dist "$1/shared/"' _ {} \;
 
 FROM base AS production
-COPY --from=build /prod/server /prod/server
-WORKDIR /prod/server
+COPY --from=build /app/deployed /app/deployed
+WORKDIR /app/deployed
 EXPOSE 3000
 EXPOSE 9229
 CMD [ "node", "dist/apps/server/src/index.js" ]
