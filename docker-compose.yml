@@ -22,7 +22,6 @@ services:
       VITE_API_URL: ${VITE_API_URL:-https://auto.askn.us/api}
     depends_on:
       - db
-    restart: unless-stopped
 
   client:
     build:
