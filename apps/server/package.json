@@ -20,7 +20,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@bytescale/sdk": "^3.53.0",
     "@laburauto/shared": "workspace:*",
