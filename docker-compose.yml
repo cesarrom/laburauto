@@ -47,6 +47,7 @@ services:
       dockerfile: apps/client/Dockerfile
       target: client
     environment:
+      NODE_ENV: ${NODE_ENV:-development}
       VITE_API_URL: ${VITE_API_URL:-https://auto.askn.us/api}
     depends_on:
       - server
