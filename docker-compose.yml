@@ -17,9 +17,9 @@ services:
       DATABASE_URL: postgres://postgres:postgres@db:5432/laburauto
       PORT: 3000
       NODE_ENV: production
-      BASE_URL: ${API_BASE_URL:-https://api.auto.askn.us}
+      BASE_URL: ${API_BASE_URL:-https://auto.askn.us}
       FRONTEND_URL: ${FRONTEND_URL:-https://auto.askn.us}
-      VITE_API_URL: ${VITE_API_URL:-https://api.auto.askn.us}
+      VITE_API_URL: ${VITE_API_URL:-https://api.auto.askn.us/api}
     depends_on:
       - db
     restart: unless-stopped
@@ -30,7 +30,7 @@ services:
       dockerfile: apps/client/Dockerfile
       target: client
     environment:
-      VITE_API_URL: ${VITE_API_URL:-https://api.auto.askn.us}
+      VITE_API_URL: ${VITE_API_URL:-https://auto.askn.us/api}
     depends_on:
       - server
 
