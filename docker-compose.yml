@@ -13,7 +13,6 @@ services:
     build: 
       context: .
       dockerfile: apps/server/Dockerfile
-    command: ["sleep", "10000000"]
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/laburauto
       PORT: 3000
