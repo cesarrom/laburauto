@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "esbuild src/index.ts --platform=node --bundle --outfile=dist/index.js",
     "start": "node dist/apps/server/src/index.js",
     "test": "node scripts/setup-test-db.js && vitest run --fileParallelism=false tests/integration",
     "test:watch": "vitest tests/integration",
@@ -20,7 +20,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
     "@bytescale/sdk": "^3.53.0",
     "@laburauto/shared": "workspace:*",
@@ -49,6 +49,7 @@
     "@vitest/coverage-v8": "^4.0.18",
     "better-sqlite3": "^12.6.2",
     "drizzle-kit": "^0.31.8",
+    "esbuild": "^0.27.3",
     "supertest": "^7.2.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
