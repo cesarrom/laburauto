@@ -14,12 +14,30 @@ services:
       context: .
       dockerfile: apps/server/Dockerfile
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/laburauto
-      PORT: 3000
-      NODE_ENV: production
-      BASE_URL: ${API_BASE_URL:-https://auto.askn.us}
-      FRONTEND_URL: ${FRONTEND_URL:-https://auto.askn.us}
-      VITE_API_URL: ${VITE_API_URL:-https://auto.askn.us/api}
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-3000}
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/laburauto}
+      JWT_SECRET: ${JWT_SECRET:-secret}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-api_key}
+      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.info}
+      BYTESCALE_ACCOUNT_ID: ${BYTESCALE_ACCOUNT_ID:-account_id}
+      BYTESCALE_API_KEY_ID: ${BYTESCALE_API_KEY_ID:-api_key_id}
+      BYTESCALE_API_KEY_HMAC: ${BYTESCALE_API_KEY_HMAC:-api_key_hmac}
+      BYTESCALE_API_KEY: ${BYTESCALE_API_KEY:-api_key}
+      BYTESCALE_SECRET_KEY_ID: ${BYTESCALE_SECRET_KEY_ID:-secret_key_id}
+      BYTESCALE_SECRET_KEY_HMAC: ${BYTESCALE_SECRET_KEY_HMAC:-secret_key_hmac}
+      BYTESCALE_SECRET_KEY: ${BYTESCALE_SECRET_KEY:-secret_key}
+      GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY:-api_key}
+      DLOCAL_API_KEY: ${DLOCAL_API_KEY:-api_key}
+      DLOCAL_SECRET_KEY: ${DLOCAL_SECRET_KEY:-secret_key}
+      DLOCAL_SMARTFIELDS_API_KEY: ${DLOCAL_SMARTFIELDS_API_KEY:-smartfields_api_key}
+      DLOCAL_PLAN_TOKEN: ${DLOCAL_PLAN_TOKEN:-plan_token}
+      DLOCAL_ENVIRONMENT: ${DLOCAL_ENVIRONMENT:-environment}
+      RESEND_API_KEY: ${RESEND_API_KEY:-api_key}
+      RESEND_SENDER: ${RESEND_SENDER:-sender}
+      CLICKSEND_API_KEY: ${CLICKSEND_API_KEY:-api_key}
+      CLICKSEND_API_USERNAME: ${CLICKSEND_API_USERNAME:-api_username}
+      CLICKSEND_NUMBER: ${CLICKSEND_NUMBER:-number}
     depends_on:
       - db
 
