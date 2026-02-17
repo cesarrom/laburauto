@@ -9,6 +9,7 @@ WORKDIR /app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm --filter @laburauto/shared build
 RUN pnpm --filter server build
+RUN pnpm --filter server run db:migrate
 
 FROM base AS production
 COPY --from=build /app/apps/server/dist /app/dist
