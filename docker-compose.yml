@@ -14,6 +14,20 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
 
+  db-migrate:
+    build: 
+      context: .
+      dockerfile: apps/server/Dockerfile
+      target: build
+    command: ["pnpm", "--filter=server", "run", "db:migrate"]
+    restart: "no"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/laburauto}
+    depends_on:
+      db:
+        condition: service_healthy
+
+
   server:
     build: 
       context: .
@@ -46,6 +60,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
 
   client:
     build:
