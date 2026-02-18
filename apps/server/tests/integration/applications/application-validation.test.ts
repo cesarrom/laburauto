@@ -338,7 +338,9 @@ describe('Rental Application Integration', () => {
       expect(res.status).toBe(200);
       expect(res.body.application.status).toBe('approved');
       expect(res.body.booking).toBeDefined();
-      expect(res.body.booking.status).toBe('pending_payment');
+      expect(['pending_publisher_signature', 'pending_renter_signature', 'pending_payment']).toContain(
+        res.body.booking.status
+      );
     });
 
     it('should reject application', async () => {

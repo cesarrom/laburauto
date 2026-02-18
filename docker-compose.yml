@@ -27,15 +27,29 @@ services:
       db:
         condition: service_healthy
 
+  docuseal-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: laburauto_docuseal_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d laburauto_docuseal_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - docuseal-db-data:/var/lib/postgresql/data
+
   docuseal:
     image: docuseal/docuseal:latest
     restart: unless-stopped
     environment:
-      DATABASE_URL: ${DOCUSEAL_DATABASE_URL:-postgres://postgres:postgres@db:5432/laburauto}
+      DATABASE_URL: ${DOCUSEAL_DATABASE_URL:-postgres://test_user:test_password@docuseal-db:5432/laburauto_docuseal_test}
       SECRET_KEY_BASE: ${DOCUSEAL_SECRET_KEY_BASE:-change-me-docuseal-secret-key}
       FORCE_SSL: ${DOCUSEAL_FORCE_SSL:-false}
     depends_on:
-      db:
+      docuseal-db:
         condition: service_healthy
 
 
@@ -93,3 +107,4 @@ services:
 
 volumes:
   db-data:
+  docuseal-db-data:
