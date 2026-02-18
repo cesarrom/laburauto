@@ -37,9 +37,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # Keep UI/API local-only in dev; do not expose publicly by default.
-    ports:
-      - "127.0.0.1:${DOCUSEAL_PORT:-3001}:3000"
 
 
   server:

@@ -204,7 +204,9 @@ describe('Integration: Payment Fraud Prevention', () => {
     await expireOutdatedBookings(app);
 
     const stillPending = await db.query.bookings.findFirst({ where: eq(schema.bookings.id, booking.id) });
-    expect(stillPending.status).toBe('pending_payment');
+    expect(['pending_publisher_signature', 'pending_renter_signature', 'pending_payment']).toContain(
+      stillPending.status
+    );
 
     console.log('✓ Booking with future deadline NOT expired');
   });

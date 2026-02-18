@@ -642,7 +642,7 @@ router.post('/expire-outdated', async (req, res) => {
   try {
     const now = new Date();
 
-    // Find bookings that are pending_payment and past deadline
+    // Find pre-payment bookings that are past deadline
     const expiredBookings = await db.update(bookings)
       .set({
         status: 'expired',
@@ -651,7 +651,7 @@ router.post('/expire-outdated', async (req, res) => {
       })
       .where(
         and(
-          eq(bookings.status, 'pending_payment'),
+          inArray(bookings.status, ['pending_publisher_signature', 'pending_renter_signature', 'pending_payment']),
           lt(bookings.paymentDeadline, now)
         )
       )
