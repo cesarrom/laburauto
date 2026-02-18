@@ -27,6 +27,20 @@ services:
       db:
         condition: service_healthy
 
+  docuseal:
+    image: docuseal/docuseal:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DOCUSEAL_DATABASE_URL:-postgres://postgres:postgres@db:5432/laburauto}
+      SECRET_KEY_BASE: ${DOCUSEAL_SECRET_KEY_BASE:-change-me-docuseal-secret-key}
+      FORCE_SSL: ${DOCUSEAL_FORCE_SSL:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+    # Keep UI/API local-only in dev; do not expose publicly by default.
+    ports:
+      - "127.0.0.1:${DOCUSEAL_PORT:-3001}:3000"
+
 
   server:
     build: 
@@ -57,11 +71,17 @@ services:
       CLICKSEND_API_KEY: ${CLICKSEND_API_KEY:-api_key}
       CLICKSEND_API_USERNAME: ${CLICKSEND_API_USERNAME:-api_username}
       CLICKSEND_NUMBER: ${CLICKSEND_NUMBER:-number}
+      DOCUSEAL_ENABLED: ${DOCUSEAL_ENABLED:-true}
+      DOCUSEAL_INTERNAL_URL: ${DOCUSEAL_INTERNAL_URL:-http://docuseal:3000}
+      DOCUSEAL_PUBLIC_URL: ${DOCUSEAL_PUBLIC_URL:-http://localhost:3001}
+      DOCUSEAL_API_KEY: ${DOCUSEAL_API_KEY:-}
     depends_on:
       db:
         condition: service_healthy
       db-migrate:
         condition: service_completed_successfully
+      docuseal:
+        condition: service_started
 
   client:
     build:

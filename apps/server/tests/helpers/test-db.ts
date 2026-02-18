@@ -18,12 +18,18 @@ let testSql: any = null;
 export async function setupTestDatabase() {
   // Read DATABASE_URL from file created by setup script
   const dbUrlFile = path.join(__dirname, '../.test-db-url');
+  const docusealUrlFile = path.join(__dirname, '../.test-docuseal-url');
 
   if (!fs.existsSync(dbUrlFile)) {
     throw new Error('Test database not initialized. Run: pnpm test:setup');
   }
 
   process.env.DATABASE_URL = fs.readFileSync(dbUrlFile, 'utf-8').trim();
+
+  if (fs.existsSync(docusealUrlFile)) {
+    process.env.DOCUSEAL_INTERNAL_URL = fs.readFileSync(docusealUrlFile, 'utf-8').trim();
+    process.env.DOCUSEAL_ENABLED = 'true';
+  }
 
   // Create fresh postgres connection for this test suite
   // We CANNOT import from src/db because that singleton gets cached and closed 

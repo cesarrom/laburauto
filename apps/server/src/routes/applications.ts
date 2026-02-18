@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { rentalApplications, notifications, vehicles, bookings, renterDocuments, shifts, contractTemplates, vehicleModels, users } from '@laburauto/shared/schema';
-import { initializeContractInstance } from './contracts';
+import { initializeContractInstance, ensureDocusealSubmissionForInstance } from './contracts';
 
 
 import { eq, and, inArray } from 'drizzle-orm';
@@ -340,14 +340,14 @@ router.put('/:id/approve', requireAuth, requireRole('publisher'), async (req, re
         booking.id
       );
 
-      contractInstance = instance;
+      contractInstance = (await ensureDocusealSubmissionForInstance(instance.id, req.user!.id)) || instance;
       // Link contract back to booking
       await (db).update(bookings).set({ contractId: instance.id }).where(eq(bookings.id, booking.id));
 
       // Send Email Invitation to Publisher
       if (publisherUser) {
         try {
-          const magicLink = await MagicLinkService.createLink(
+          const signingUrl = contractInstance.docusealPublisherSignUrl || await MagicLinkService.createLink(
             publisherUser.id,
             `/portal/contracts/${instance.id}`,
             req
@@ -355,7 +355,7 @@ router.put('/:id/approve', requireAuth, requireRole('publisher'), async (req, re
 
           await EmailService.sendSigningInvitation({
             email: publisherUser.email,
-            magicLink,
+            magicLink: signingUrl,
             role: 'publisher',
             contractId: instance.id,
             bookingId: booking.id,

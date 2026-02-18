@@ -17,9 +17,21 @@ const ContractSignerPage: React.FC = () => {
   useEffect(() => {
     const loadContract = async () => {
       try {
+        const normalizeStageRole = (role?: string) => {
+          if (!role) return '';
+          if (role === 'renter') return 'driver';
+          return role;
+        };
+
         const res = await api.get(`/contracts/instances/${id}`);
         const instance = res.data;
         setContractInstance(instance);
+
+        if (instance.docusealSignUrl) {
+          window.location.assign(instance.docusealSignUrl);
+          setLoading(false);
+          return;
+        }
 
         // Check if already signed
         if (instance.status === 'signed') {
@@ -45,7 +57,7 @@ const ContractSignerPage: React.FC = () => {
           // Stage 2 (First human signer)
           const stage = signerStages[0];
           if (stage) {
-            const effectiveRole = stage.role || 'publisher'; // Fallback to publisher for first stage
+            const effectiveRole = normalizeStageRole(stage.role) || 'publisher'; // Fallback to publisher for first stage
             if (user?.role === effectiveRole) {
               activeStageId = stage.id;
             } else {
@@ -56,7 +68,7 @@ const ContractSignerPage: React.FC = () => {
           // Stage 3 (Second human signer)
           const stage = signerStages[1];
           if (stage) {
-            const effectiveRole = stage.role || (instance.template.type === 'rental_agreement' ? 'driver' : 'publisher');
+            const effectiveRole = normalizeStageRole(stage.role) || (instance.template.type === 'rental_agreement' ? 'driver' : 'publisher');
             if (user?.role === effectiveRole) {
               activeStageId = stage.id;
             } else {

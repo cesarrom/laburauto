@@ -9,7 +9,8 @@
  * 3. Starts a fresh PostgreSQL container on the free port
  * 4. Waits for it to be healthy
  * 5. Runs all Drizzle migrations
- * 6. Exports DATABASE_URL for tests
+ * 6. Starts a Docuseal test instance bound to localhost
+ * 7. Exports DATABASE_URL and DOCUSEAL_INTERNAL_URL for tests
  */
 
 const { execSync } = require('child_process');
@@ -17,7 +18,10 @@ const path = require('path');
 const fs = require('fs');
 
 const CONTAINER_NAME = 'laburauto-test-db';
+const DOCUSEAL_CONTAINER_NAME = 'laburauto-test-docuseal';
+const DOCUSEAL_DB_CONTAINER_NAME = 'laburauto-test-docuseal-db';
 const START_PORT = 5433; // Start from 5433 to avoid common dev DB on 5432
+const DOCUSEAL_START_PORT = 3100;
 const MAX_PORT_ATTEMPTS = 50;
 
 function log(message) {
@@ -68,6 +72,8 @@ function isPortUsedByTestContainer(port) {
  */
 async function tryStartContainer(port) {
   const DATABASE_URL = `postgresql://test_user:test_password@localhost:${port}/laburauto_test`;
+  const docusealPort = DOCUSEAL_START_PORT + (port - START_PORT);
+  const DOCUSEAL_INTERNAL_URL = `http://localhost:${docusealPort}`;
 
   // Create temporary docker-compose file with the port
   const composeContent = `
@@ -88,6 +94,32 @@ services:
       interval: 2s
       timeout: 5s
       retries: 5
+
+  test-docuseal-db:
+    image: postgres:15
+    container_name: ${DOCUSEAL_DB_CONTAINER_NAME}
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: laburauto_docuseal_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d laburauto_docuseal_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+
+  test-docuseal:
+    image: docuseal/docuseal:latest
+    container_name: ${DOCUSEAL_CONTAINER_NAME}
+    environment:
+      DATABASE_URL: postgres://test_user:test_password@test-docuseal-db:5432/laburauto_docuseal_test
+      SECRET_KEY_BASE: test-docuseal-secret-key-for-integration-tests
+      FORCE_SSL: false
+    depends_on:
+      test-docuseal-db:
+        condition: service_healthy
+    ports:
+      - "${docusealPort}:3000"
 `;
 
   const tempComposeFile = path.join(__dirname, '../docker-compose.test.tmp.yml');
@@ -102,7 +134,7 @@ services:
       fs.unlinkSync(tempComposeFile);
     }
 
-    return { success: true, port, DATABASE_URL };
+    return { success: true, port, DATABASE_URL, docusealPort, DOCUSEAL_INTERNAL_URL };
   } catch (err) {
     // Clean up temp file
     if (fs.existsSync(tempComposeFile)) {
@@ -128,6 +160,8 @@ async function main() {
     if (isPortUsedByTestContainer(p)) {
       log(`Found old test container on port ${p}, removing...`);
       exec(`docker rm -f ${CONTAINER_NAME}`, { ignoreError: true, silent: true });
+      exec(`docker rm -f ${DOCUSEAL_CONTAINER_NAME}`, { ignoreError: true, silent: true });
+      exec(`docker rm -f ${DOCUSEAL_DB_CONTAINER_NAME}`, { ignoreError: true, silent: true });
       await new Promise(resolve => setTimeout(resolve, 2000));
       break;
     }
@@ -155,7 +189,7 @@ async function main() {
     process.exit(1);
   }
 
-  const { port, DATABASE_URL } = result;
+  const { port, DATABASE_URL, docusealPort, DOCUSEAL_INTERNAL_URL } = result;
 
   // Step 3: Wait for database to be healthy
   log('Waiting for database to be ready...');
@@ -184,12 +218,38 @@ async function main() {
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
-  // Step 4: Run migrations
+  // Step 4: Wait for Docuseal to be reachable
+  log(`Waiting for Docuseal to be ready on port ${docusealPort}...`);
+  attempts = 0;
+  while (attempts < maxAttempts) {
+    const reachable = exec(
+      `curl -fsS -o /dev/null ${DOCUSEAL_INTERNAL_URL}`,
+      { silent: true, ignoreError: true }
+    );
+
+    if (reachable !== null) {
+      log('Docuseal is reachable!');
+      break;
+    }
+
+    attempts++;
+    if (attempts >= maxAttempts) {
+      error('Docuseal failed to become reachable');
+      process.exit(1);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+
+  // Step 5: Run migrations
   log('Running Drizzle migrations...');
 
   // Create .env.test file
   const envTestPath = path.join(__dirname, '../.env.test');
-  fs.writeFileSync(envTestPath, `DATABASE_URL=${DATABASE_URL}\n`);
+  fs.writeFileSync(
+    envTestPath,
+    `DATABASE_URL=${DATABASE_URL}\nDOCUSEAL_INTERNAL_URL=${DOCUSEAL_INTERNAL_URL}\nDOCUSEAL_ENABLED=true\n`
+  );
 
   // Run drizzle migrate
   try {
@@ -206,15 +266,20 @@ async function main() {
     throw err;
   }
 
-  // Step 5: Export DATABASE_URL to tests directory
+  // Step 6: Export test URLs to tests directory
   log('Test database is ready!');
   log(`DATABASE_URL=${DATABASE_URL}`);
+  log(`DOCUSEAL_INTERNAL_URL=${DOCUSEAL_INTERNAL_URL}`);
 
   // Write to tests directory where test-db.ts expects it
   const testDbUrlFile = path.join(__dirname, '../tests/.test-db-url');
   fs.writeFileSync(testDbUrlFile, DATABASE_URL);
 
+  const testDocusealUrlFile = path.join(__dirname, '../tests/.test-docuseal-url');
+  fs.writeFileSync(testDocusealUrlFile, DOCUSEAL_INTERNAL_URL);
+
   log(`Database URL written to: ${testDbUrlFile}`);
+  log(`Docuseal URL written to: ${testDocusealUrlFile}`);
 }
 
 main().catch(err => {

@@ -81,12 +81,14 @@ export class EmailService {
   static async sendSigningInvitation({
     email,
     magicLink,
+    signingUrl,
     role,
     contractId,
     bookingId,
   }: {
     email: string;
-    magicLink: string;
+    magicLink?: string;
+    signingUrl?: string;
     role: string;
     contractId: number;
     bookingId?: number;
@@ -98,17 +100,22 @@ export class EmailService {
       ? `Action Required: Sign Contract for Booking #${bookingId}`
       : `Action Required: Sign Enrollment Contract`;
 
+    const actionUrl = signingUrl || magicLink;
+    if (!actionUrl) {
+      throw new Error('Signing invitation requires magicLink or signingUrl');
+    }
+
     const html = `
       <h1>Action Required: Review and Sign</h1>
       <p>A contract is ready for your signature.</p>
-      <p>Please click the link below to securely review and sign the document. This link is single-use and will expire in 15 minutes.</p>
+      <p>Please click the link below to securely review and sign the document.</p>
       <div style="margin: 20px 0;">
-        <a href="${magicLink}" style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+        <a href="${actionUrl}" style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
           Review and Sign Contract
         </a>
       </div>
       <p>If the button doesn't work, copy and paste this URL into your browser:</p>
-      <p>${magicLink}</p>
+      <p>${actionUrl}</p>
       <br />
       <p>Best regards,<br />Laburauto Team</p>
       <img src="${baseUrl}/api/contracts/instances/${contractId}/track/${role}?email=${encodeURIComponent(email)}" width="1" height="1" style="display:none" />

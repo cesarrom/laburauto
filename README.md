@@ -317,7 +317,28 @@ OPENROUTER_API_KEY=sk-or-v1-...
 
 # Server
 PORT=3000
+
+# Docuseal (self-hosted)
+DOCUSEAL_ENABLED=true
+DOCUSEAL_INTERNAL_URL=http://localhost:3001
+DOCUSEAL_PUBLIC_URL=https://sign.your-domain.com
+DOCUSEAL_API_KEY=...
+DOCUSEAL_WEBHOOK_SECRET=...
+
+# Contract-type -> Docuseal template mapping
+DOCUSEAL_TEMPLATE_PUBLISHER_ENROLLMENT_ID=...
+DOCUSEAL_TEMPLATE_RENTAL_AGREEMENT_ID=...
 ```
+
+### Integration tests with Docuseal
+
+- `pnpm --filter=server test:setup` now provisions **both**:
+  - PostgreSQL test container (`laburauto-test-db`)
+  - Docuseal test container (`laburauto-test-docuseal`)
+- The setup script writes:
+  - `apps/server/tests/.test-db-url`
+  - `apps/server/tests/.test-docuseal-url`
+- `setupTestDatabase()` auto-loads both values into `process.env` for integration tests.
 
 ## 🤝 Contributing
 

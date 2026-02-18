@@ -191,7 +191,7 @@ export const signContractSchema = z.object({
     userId: z.number(),
     action: z.string(),
     timestamp: z.string(),
-  }),
+  }).optional(),
   fields: z.any().optional(),
 });
 

@@ -219,6 +219,9 @@ export const contractInstances = pgTable('contract_instances', {
   id: serial('id').primaryKey(),
   templateId: integer('template_id').references(() => contractTemplates.id).notNull(),
   status: text('status', { enum: ['pending', 'signed', 'void'] }).default('pending'),
+  docusealSubmissionId: text('docuseal_submission_id'),
+  docusealPublisherSignUrl: text('docuseal_publisher_sign_url'),
+  docusealRenterSignUrl: text('docuseal_renter_sign_url'),
   finalPdfUrl: text('final_pdf_url'), // Signed PDF
   auditLog: jsonb('audit_log').notNull().default([]), // List of signing events
   variableValues: jsonb('variable_values'), // Actual values used for this instance
