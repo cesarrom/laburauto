@@ -3,6 +3,7 @@ import { db } from '../db';
 import { users, contractTemplates, contractInstances } from '../../db/schema';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { AuditService } from '../services/auditService';
 import { MagicLinkService } from '../services/magicLinkService';
@@ -16,6 +17,326 @@ import { ContractVariableService } from '../services/contractVariableService';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
+const AUTHENTIK_ENABLED = process.env.AUTHENTIK_ENABLED === 'true';
+const AUTHENTIK_ISSUER = process.env.AUTHENTIK_ISSUER || '';
+const AUTHENTIK_CLIENT_ID = process.env.AUTHENTIK_CLIENT_ID || '';
+const AUTHENTIK_CLIENT_SECRET = process.env.AUTHENTIK_CLIENT_SECRET || '';
+const AUTHENTIK_REDIRECT_URI = process.env.AUTHENTIK_REDIRECT_URI || '';
+const AUTHENTIK_SCOPES = process.env.AUTHENTIK_SCOPES || 'openid profile email groups';
+const AUTHENTIK_ADMIN_GROUP = process.env.AUTHENTIK_ADMIN_GROUP || '';
+const AUTHENTIK_REQUIRED_DOMAIN = process.env.AUTHENTIK_REQUIRED_DOMAIN || '';
+const AUTH_SSO_STATE_SECRET = process.env.AUTH_SSO_STATE_SECRET || 'change-me-state-secret';
+const APP_URL = process.env.APP_URL || 'http://localhost:5173';
+const SSO_STATE_TTL_MS = 10 * 60 * 1000;
+const SSO_CODE_TTL_MS = 2 * 60 * 1000;
+
+const ssoStates = new Map<string, { nonce: string; createdAt: number }>();
+const ssoCodes = new Map<string, { userId: number; createdAt: number }>();
+
+type OidcDiscovery = {
+  authorization_endpoint: string;
+  token_endpoint: string;
+  userinfo_endpoint: string;
+};
+
+type OidcTokenResponse = {
+  access_token: string;
+};
+
+type OidcUserInfo = {
+  email?: string;
+  name?: string;
+  given_name?: string;
+  groups?: unknown;
+};
+
+const getAppUser = (user: any) => ({
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  onboardingCompleted: user.onboardingCompleted,
+});
+
+const issueAppToken = (user: any) => jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+
+const cleanupSsoCaches = () => {
+  const now = Date.now();
+
+  for (const [state, value] of ssoStates.entries()) {
+    if (now - value.createdAt > SSO_STATE_TTL_MS) {
+      ssoStates.delete(state);
+    }
+  }
+
+  for (const [code, value] of ssoCodes.entries()) {
+    if (now - value.createdAt > SSO_CODE_TTL_MS) {
+      ssoCodes.delete(code);
+    }
+  }
+};
+
+const signStatePayload = (payload: string) =>
+  crypto.createHmac('sha256', AUTH_SSO_STATE_SECRET).update(payload).digest('hex');
+
+const createSsoState = () => {
+  const payload = `${Date.now()}:${crypto.randomUUID()}`;
+  const signature = signStatePayload(payload);
+  return `${Buffer.from(payload).toString('base64url')}.${signature}`;
+};
+
+const verifySsoState = (state: string) => {
+  const [encodedPayload, signature] = state.split('.');
+  if (!encodedPayload || !signature) {
+    return false;
+  }
+
+  const payload = Buffer.from(encodedPayload, 'base64url').toString('utf8');
+  const expectedSignature = signStatePayload(payload);
+  if (signature.length !== expectedSignature.length) {
+    return false;
+  }
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
+};
+
+const getIssuerBase = () => AUTHENTIK_ISSUER.replace(/\/+$/, '');
+
+const discoverOidc = async (): Promise<OidcDiscovery> => {
+  const issuer = getIssuerBase();
+  if (!issuer) {
+    throw new Error('AUTHENTIK_ISSUER is not configured');
+  }
+
+  const response = await fetch(`${issuer}/.well-known/openid-configuration`);
+  if (!response.ok) {
+    throw new Error('Failed to discover Authentik OIDC configuration');
+  }
+
+  const discovery = (await response.json()) as Partial<OidcDiscovery>;
+
+  if (!discovery.authorization_endpoint || !discovery.token_endpoint || !discovery.userinfo_endpoint) {
+    throw new Error('Invalid OIDC discovery response from Authentik');
+  }
+
+  return discovery as OidcDiscovery;
+};
+
+const exchangeAuthorizationCode = async (tokenEndpoint: string, code: string): Promise<OidcTokenResponse> => {
+  const body = new URLSearchParams({
+    grant_type: 'authorization_code',
+    code,
+    client_id: AUTHENTIK_CLIENT_ID,
+    client_secret: AUTHENTIK_CLIENT_SECRET,
+    redirect_uri: AUTHENTIK_REDIRECT_URI,
+  });
+
+  const response = await fetch(tokenEndpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString(),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to exchange OIDC authorization code');
+  }
+
+  const tokens = (await response.json()) as Partial<OidcTokenResponse>;
+  if (!tokens.access_token) {
+    throw new Error('OIDC token response missing access_token');
+  }
+
+  return tokens as OidcTokenResponse;
+};
+
+const fetchOidcUserInfo = async (userinfoEndpoint: string, accessToken: string): Promise<OidcUserInfo> => {
+  const response = await fetch(userinfoEndpoint, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch OIDC userinfo');
+  }
+
+  return (await response.json()) as OidcUserInfo;
+};
+
+const normalizeGroups = (value: unknown): string[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((entry): entry is string => typeof entry === 'string');
+};
+
+const isAllowedInternalUser = (email: string, groups: string[]) => {
+  const requiredDomain = AUTHENTIK_REQUIRED_DOMAIN.trim().toLowerCase();
+  const requiredGroup = AUTHENTIK_ADMIN_GROUP.trim();
+
+  if (requiredDomain && !email.toLowerCase().endsWith(`@${requiredDomain}`)) {
+    return false;
+  }
+
+  if (requiredGroup && !groups.includes(requiredGroup)) {
+    return false;
+  }
+
+  return true;
+};
+
+const redirectToClient = (path: string) => `${APP_URL.replace(/\/$/, '')}${path}`;
+
+router.get('/sso/authentik/start', async (req, res) => {
+  if (!AUTHENTIK_ENABLED) {
+    return res.status(404).json({ error: 'SSO is disabled' });
+  }
+
+  if (!AUTHENTIK_CLIENT_ID || !AUTHENTIK_CLIENT_SECRET || !AUTHENTIK_REDIRECT_URI) {
+    return res.status(500).json({ error: 'SSO is misconfigured on server' });
+  }
+
+  try {
+    cleanupSsoCaches();
+
+    const discovery = await discoverOidc();
+    const state = createSsoState();
+    const nonce = crypto.randomUUID();
+
+    ssoStates.set(state, { nonce, createdAt: Date.now() });
+
+    const authorizeUrl = new URL(discovery.authorization_endpoint);
+    authorizeUrl.searchParams.set('response_type', 'code');
+    authorizeUrl.searchParams.set('client_id', AUTHENTIK_CLIENT_ID);
+    authorizeUrl.searchParams.set('redirect_uri', AUTHENTIK_REDIRECT_URI);
+    authorizeUrl.searchParams.set('scope', AUTHENTIK_SCOPES);
+    authorizeUrl.searchParams.set('state', state);
+    authorizeUrl.searchParams.set('nonce', nonce);
+
+    return res.redirect(authorizeUrl.toString());
+  } catch (error) {
+    console.error('Failed to start Authentik SSO flow:', error);
+    return res.status(500).json({ error: 'Failed to start SSO flow' });
+  }
+});
+
+router.get('/sso/authentik/callback', async (req, res) => {
+  if (!AUTHENTIK_ENABLED) {
+    return res.status(404).json({ error: 'SSO is disabled' });
+  }
+
+  const code = req.query.code;
+  const state = req.query.state;
+  const oidcError = req.query.error;
+
+  if (typeof oidcError === 'string') {
+    return res.redirect(redirectToClient(`/login?error=${encodeURIComponent('SSO login was cancelled')}`));
+  }
+
+  if (typeof code !== 'string' || typeof state !== 'string') {
+    return res.redirect(redirectToClient(`/login?error=${encodeURIComponent('Missing SSO callback parameters')}`));
+  }
+
+  if (!verifySsoState(state)) {
+    return res.redirect(redirectToClient(`/login?error=${encodeURIComponent('Invalid SSO state')}`));
+  }
+
+  const savedState = ssoStates.get(state);
+  if (!savedState || Date.now() - savedState.createdAt > SSO_STATE_TTL_MS) {
+    ssoStates.delete(state);
+    return res.redirect(redirectToClient(`/login?error=${encodeURIComponent('Expired SSO state')}`));
+  }
+
+  ssoStates.delete(state);
+
+  try {
+    const discovery = await discoverOidc();
+    const tokens = await exchangeAuthorizationCode(discovery.token_endpoint, code);
+    const userInfo = await fetchOidcUserInfo(discovery.userinfo_endpoint, tokens.access_token);
+
+    const email = typeof userInfo.email === 'string' ? userInfo.email.trim().toLowerCase() : '';
+    const groups = normalizeGroups(userInfo.groups);
+
+    if (!email || !isAllowedInternalUser(email, groups)) {
+      return res.redirect(redirectToClient(`/login?error=${encodeURIComponent('Your account is not authorized for admin SSO')}`));
+    }
+
+    const [existingUser] = await db.select().from(users).where(eq(users.email, email));
+
+    let appUser = existingUser;
+    const fallbackName = email.split('@')[0] || 'Admin';
+    const incomingName = userInfo.name || userInfo.given_name || fallbackName;
+
+    if (!existingUser) {
+      const generatedPassword = await bcrypt.hash(crypto.randomUUID(), 10);
+      [appUser] = await db.insert(users).values({
+        name: incomingName,
+        email,
+        password: generatedPassword,
+        role: 'admin',
+        onboardingCompleted: true,
+      }).returning();
+    } else {
+      const [updatedUser] = await db
+        .update(users)
+        .set({
+          role: 'admin',
+          onboardingCompleted: true,
+          name: existingUser.name || incomingName,
+        })
+        .where(eq(users.id, existingUser.id))
+        .returning();
+
+      appUser = updatedUser;
+    }
+
+    const oneTimeCode = crypto.randomUUID();
+    ssoCodes.set(oneTimeCode, { userId: appUser.id, createdAt: Date.now() });
+
+    AuditService.log(
+      appUser.id,
+      'auth.sso.login',
+      'user',
+      appUser.id,
+      { provider: 'authentik', email },
+      req
+    );
+
+    return res.redirect(redirectToClient(`/sso/callback?code=${encodeURIComponent(oneTimeCode)}`));
+  } catch (error) {
+    console.error('Authentik callback failed:', error);
+    return res.redirect(redirectToClient(`/login?error=${encodeURIComponent('SSO authentication failed')}`));
+  }
+});
+
+router.post('/sso/exchange', async (req, res) => {
+  if (!AUTHENTIK_ENABLED) {
+    return res.status(404).json({ error: 'SSO is disabled' });
+  }
+
+  cleanupSsoCaches();
+
+  const code = typeof req.body?.code === 'string' ? req.body.code : '';
+  if (!code) {
+    return res.status(400).json({ error: 'Missing exchange code' });
+  }
+
+  const payload = ssoCodes.get(code);
+  if (!payload || Date.now() - payload.createdAt > SSO_CODE_TTL_MS) {
+    ssoCodes.delete(code);
+    return res.status(400).json({ error: 'Invalid or expired exchange code' });
+  }
+
+  ssoCodes.delete(code);
+
+  const [user] = await db.select().from(users).where(eq(users.id, payload.userId));
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  return res.json({
+    token: issueAppToken(user),
+    user: getAppUser(user),
+  });
+});
 
 // Register - now only requires name, email, password
 router.post('/register', validateRequest({ body: registerSchema }), async (req, res) => {

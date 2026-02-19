@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import api from '../lib/api';
 
 export default function Login() {
@@ -8,7 +8,10 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [error, setError] = useState('');
+  const [searchParams] = useSearchParams();
+  const [error, setError] = useState(searchParams.get('error') || '');
+  const ssoEnabled = import.meta.env.VITE_AUTHENTIK_ENABLED === 'true';
+  const ssoLoginUrl = import.meta.env.VITE_SSO_LOGIN_URL || '';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,6 +22,15 @@ export default function Login() {
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed');
     }
+  };
+
+  const handleInternalLogin = () => {
+    if (!ssoLoginUrl) {
+      setError('SSO is not configured in this environment');
+      return;
+    }
+
+    window.location.assign(ssoLoginUrl);
   };
 
   return (
@@ -54,6 +66,22 @@ export default function Login() {
             Sign In
           </button>
         </form>
+        {ssoEnabled && (
+          <>
+            <div className="my-5 flex items-center">
+              <div className="h-px flex-1 bg-gray-200" />
+              <span className="px-3 text-xs uppercase tracking-wide text-gray-400">Internal team</span>
+              <div className="h-px flex-1 bg-gray-200" />
+            </div>
+            <button
+              type="button"
+              onClick={handleInternalLogin}
+              className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition font-medium"
+            >
+              Continue with Authentik (Admin)
+            </button>
+          </>
+        )}
         <p className="mt-4 text-center text-sm text-gray-600">
           Don't have an account? <Link to="/register" className="text-blue-600 hover:underline">Sign up</Link>
         </p>

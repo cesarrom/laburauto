@@ -31,6 +31,16 @@ services:
       PORT: ${PORT:-3000}
       DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/laburauto}
       JWT_SECRET: ${JWT_SECRET:-secret}
+      AUTHENTIK_ENABLED: ${AUTHENTIK_ENABLED:-false}
+      AUTHENTIK_ISSUER: ${AUTHENTIK_ISSUER:-https://auth.example.com/application/o/laburauto/}
+      AUTHENTIK_CLIENT_ID: ${AUTHENTIK_CLIENT_ID:-}
+      AUTHENTIK_CLIENT_SECRET: ${AUTHENTIK_CLIENT_SECRET:-}
+      AUTHENTIK_REDIRECT_URI: ${AUTHENTIK_REDIRECT_URI:-http://localhost:3000/api/auth/sso/authentik/callback}
+      AUTHENTIK_SCOPES: ${AUTHENTIK_SCOPES:-openid profile email groups}
+      AUTHENTIK_ADMIN_GROUP: ${AUTHENTIK_ADMIN_GROUP:-laburauto-admins}
+      AUTHENTIK_REQUIRED_DOMAIN: ${AUTHENTIK_REQUIRED_DOMAIN:-}
+      AUTH_SSO_STATE_SECRET: ${AUTH_SSO_STATE_SECRET:-change-me-state-secret}
+      APP_URL: ${APP_URL:-http://localhost:5173}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-api_key}
       OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.info}
       BYTESCALE_ACCOUNT_ID: ${BYTESCALE_ACCOUNT_ID:-account_id}
@@ -71,6 +81,8 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       VITE_API_URL: ${VITE_API_URL:-https://auto.askn.us/api}
+      VITE_AUTHENTIK_ENABLED: ${VITE_AUTHENTIK_ENABLED:-false}
+      VITE_SSO_LOGIN_URL: ${VITE_SSO_LOGIN_URL:-http://localhost:3000/api/auth/sso/authentik/start}
     depends_on:
       - server
     networks:

@@ -23,6 +23,7 @@ import SubscriptionModal from './components/modals/SubscriptionModal';
 import { useAxiosInterceptors } from './hooks/useAxiosInterceptors';
 import MagicLogin from './pages/MagicLogin';
 import ContractSignerPage from './pages/ContractSignerPage';
+import SsoCallback from './pages/SsoCallback';
 
 function OnboardingGate({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -73,6 +74,7 @@ function AppContent() {
           <Route path="/admin/disputes" element={<PrivateRoute><AdminDisputes /></PrivateRoute>} />
           <Route path="/admin/templates" element={<PrivateRoute><AdminContractTemplates /></PrivateRoute>} />
           <Route path="/magic-login" element={<MagicLogin />} />
+          <Route path="/sso/callback" element={<SsoCallback />} />
           <Route path="/portal/contracts/:id" element={<PrivateRoute><ContractSignerPage /></PrivateRoute>} />
         </Routes>
       </Layout>
