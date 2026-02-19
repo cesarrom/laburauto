@@ -5,7 +5,11 @@ RUN corepack enable
 
 FROM base AS build
 ARG VITE_API_URL=/api
+ARG VITE_AUTHENTIK_ENABLED=false
+ARG VITE_SSO_LOGIN_URL=http://localhost:3000/api/auth/sso/authentik/start
 ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_AUTHENTIK_ENABLED=$VITE_AUTHENTIK_ENABLED
+ENV VITE_SSO_LOGIN_URL=$VITE_SSO_LOGIN_URL
 COPY . /usr/src/app
 WORKDIR /usr/src/app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile

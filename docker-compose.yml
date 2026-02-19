@@ -78,6 +78,10 @@ services:
       context: .
       dockerfile: apps/client/Dockerfile
       target: client
+      args:
+        VITE_API_URL: ${VITE_API_URL:-https://auto.askn.us/api}
+        VITE_AUTHENTIK_ENABLED: ${VITE_AUTHENTIK_ENABLED:-false}
+        VITE_SSO_LOGIN_URL: ${VITE_SSO_LOGIN_URL:-http://localhost:3000/api/auth/sso/authentik/start}
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       VITE_API_URL: ${VITE_API_URL:-https://auto.askn.us/api}
