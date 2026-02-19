@@ -160,10 +160,16 @@ router.post('/:id/payment/proof', requireAuth, async (req, res) => {
     // Calculate hash of the proof image for tamper detection
     let proofHash: string | null = null;
     try {
-      const response = await fetch(proofUrl);
-      if (response.ok) {
-        const buffer = await response.arrayBuffer();
-        proofHash = crypto.createHash('sha256').update(Buffer.from(buffer)).digest('hex');
+      if (process.env.NODE_ENV === 'test') {
+        proofHash = crypto.createHash('sha256').update(String(proofUrl)).digest('hex');
+      } else {
+        const response = await fetch(proofUrl, {
+          signal: AbortSignal.timeout(1500),
+        });
+        if (response.ok) {
+          const buffer = await response.arrayBuffer();
+          proofHash = crypto.createHash('sha256').update(Buffer.from(buffer)).digest('hex');
+        }
       }
     } catch (err) {
       console.warn('Could not fetch proof URL for hashing:', err);

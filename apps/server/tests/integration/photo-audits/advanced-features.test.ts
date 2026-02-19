@@ -106,7 +106,10 @@ describe('Advanced Features: Contracts, Audits & Admin', () => {
       type: 'rental_agreement',
       pdfUrl: 'mock-pdf-url',
       fields: [],
-      stages: [{ id: 's1', name: 'Renter Signing', label: 'Renter', role: 'renter', type: 'signer', order: 1 }]
+      stages: [
+        { id: 's1', name: 'Publisher Signing', label: 'Publisher', role: 'publisher', type: 'signer', order: 1 },
+        { id: 's2', name: 'Renter Signing', label: 'Renter', role: 'renter', type: 'signer', order: 2 }
+      ]
     });
     expect(tRes.status).toBe(201);
 
@@ -147,11 +150,24 @@ describe('Advanced Features: Contracts, Audits & Admin', () => {
 
 
     it('should submit a signature result via API', async () => {
-      // In these tests, we use the simple 'sign' endpoint which is more generic
-      // (Used by SDK and certain flows)
       contractId = booking.contractId;
 
-      const res = await request(app)
+      const publisherSignRes = await request(app)
+        .post(`/api/contracts/instances/${contractId}/sign`)
+        .set('Authorization', `Bearer ${publisher.token}`)
+        .send({
+          finalPdfUrl: 'https://cdn.test.com/signed/pub_signed.pdf',
+          auditEvent: {
+            userId: publisher.user.id,
+            action: 'signed',
+            timestamp: new Date().toISOString(),
+            isFinal: false
+          }
+        });
+
+      expect(publisherSignRes.status).toBe(200);
+
+      const renterSignRes = await request(app)
         .post(`/api/contracts/instances/${contractId}/sign`)
         .set('Authorization', `Bearer ${renter.token}`)
 
@@ -166,8 +182,8 @@ describe('Advanced Features: Contracts, Audits & Admin', () => {
           }
         });
 
-      expect(res.status).toBe(200);
-      expect(res.body.status).toBe('signed');
+      expect(renterSignRes.status).toBe(200);
+      expect(renterSignRes.body.status).toBe('signed');
     });
 
     it('should reject audit with non-live metadata', async () => {

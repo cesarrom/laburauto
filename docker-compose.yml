@@ -1,20 +1,5 @@
 services:
-  db:
-    image: postgres:15-alpine
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: laburauto
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d laburauto"]
-      interval: 2s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - db-data:/var/lib/postgresql/data
-
-  db-migrate:
+  laburauto-db-migrate:
     build: 
       context: .
       dockerfile: apps/server/Dockerfile
@@ -23,34 +8,20 @@ services:
     restart: "no"
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/laburauto}
-    depends_on:
-      db:
-        condition: service_healthy
-
-  docuseal-db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: test_user
-      POSTGRES_PASSWORD: test_password
-      POSTGRES_DB: laburauto_docuseal_test
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U test_user -d laburauto_docuseal_test"]
-      interval: 2s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - docuseal-db-data:/var/lib/postgresql/data
+    networks:
+      - shared_db_net
 
   docuseal:
     image: docuseal/docuseal:latest
     restart: unless-stopped
     environment:
-      DATABASE_URL: ${DOCUSEAL_DATABASE_URL:-postgres://test_user:test_password@docuseal-db:5432/laburauto_docuseal_test}
+      DATABASE_URL: ${DOCUSEAL_DATABASE_URL:-postgres://${DOCUSEAL_DB_USER:-docuseal}:${DOCUSEAL_DB_PASSWORD:-docuseal}@docuseal-db:5432/${DOCUSEAL_DB_NAME:-laburauto_docuseal}}
       SECRET_KEY_BASE: ${DOCUSEAL_SECRET_KEY_BASE:-change-me-docuseal-secret-key}
       FORCE_SSL: ${DOCUSEAL_FORCE_SSL:-false}
-    depends_on:
-      docuseal-db:
-        condition: service_healthy
+    ports:
+      - "127.0.0.1:${DOCUSEAL_PORT:-3001}:3000"
+    networks:
+      - shared_db_net
 
 
   server:
@@ -87,12 +58,12 @@ services:
       DOCUSEAL_PUBLIC_URL: ${DOCUSEAL_PUBLIC_URL:-http://localhost:3001}
       DOCUSEAL_API_KEY: ${DOCUSEAL_API_KEY:-}
     depends_on:
-      db:
-        condition: service_healthy
-      db-migrate:
+      laburauto-db-migrate:
         condition: service_completed_successfully
       docuseal:
         condition: service_started
+    networks:
+      - shared_db_net
 
   client:
     build:
@@ -104,7 +75,13 @@ services:
       VITE_API_URL: ${VITE_API_URL:-https://auto.askn.us/api}
     depends_on:
       - server
+    networks:
+      - shared_db_net
 
 volumes:
   db-data:
   docuseal-db-data:
+
+networks:
+  shared_db_net:
+    external: true
