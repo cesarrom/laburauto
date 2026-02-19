@@ -18,8 +18,6 @@ services:
       DATABASE_URL: ${DOCUSEAL_DATABASE_URL:-postgres://${DOCUSEAL_DB_USER:-docuseal}:${DOCUSEAL_DB_PASSWORD:-docuseal}@docuseal-db:5432/${DOCUSEAL_DB_NAME:-laburauto_docuseal}}
       SECRET_KEY_BASE: ${DOCUSEAL_SECRET_KEY_BASE:-change-me-docuseal-secret-key}
       FORCE_SSL: ${DOCUSEAL_FORCE_SSL:-false}
-    ports:
-      - "127.0.0.1:${DOCUSEAL_PORT:-3001}:3000"
     networks:
       - shared_db_net
 
