@@ -12,6 +12,7 @@ import PublishVehicleWizard from './pages/PublishVehicleWizard';
 import MyVehicles from './pages/MyVehicles';
 import PublisherApplications from './pages/PublisherApplications';
 import Subscription from './pages/Subscription';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminVehicleReview from './pages/admin/AdminVehicleReview';
 import AdminDisputes from './pages/admin/AdminDisputes';
 import AdminContractTemplates from './pages/admin/AdminContractTemplates';
@@ -70,6 +71,7 @@ function AppContent() {
           <Route path="/applications" element={<PrivateRoute><PublisherApplications /></PrivateRoute>} />
           <Route path="/subscription" element={<PrivateRoute><Subscription /></PrivateRoute>} />
           <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
+          <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
           <Route path="/admin/vehicles" element={<PrivateRoute><AdminVehicleReview /></PrivateRoute>} />
           <Route path="/admin/disputes" element={<PrivateRoute><AdminDisputes /></PrivateRoute>} />
           <Route path="/admin/templates" element={<PrivateRoute><AdminContractTemplates /></PrivateRoute>} />
