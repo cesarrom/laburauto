@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, Settings2, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useVehicles } from '../hooks/useVehicles';
+import type { ApiVehicle } from '../hooks/useVehicles';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 import VehicleGrid from '../components/vehicles/VehicleGrid';
@@ -13,7 +14,7 @@ export default function MyVehicles() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: vehiclesData, isLoading } = useVehicles(user?.id);
-  const [editingVehicle, setEditingVehicle] = useState<any>(null);
+  const [editingVehicle, setEditingVehicle] = useState<ApiVehicle | null>(null);
 
   // Filter client side (since API returns all)
   // Ideally API should support filtering
