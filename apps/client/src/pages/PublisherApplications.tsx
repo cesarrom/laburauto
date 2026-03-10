@@ -126,7 +126,7 @@ export default function PublisherApplications() {
   };
 
   // Sort applications: Action Required First, then Date
-  const normalizedApps = useMemo(() => applications ?? [], [applications]);
+  const normalizedApps = useMemo<ApplicationSummary[]>(() => applications ?? [], [applications]);
 
   const sortedApps = useMemo(() => {
     return [...normalizedApps].sort((a, b) => {
@@ -267,7 +267,7 @@ export default function PublisherApplications() {
                     </>
                   )}
 
-                  {unified.action === 'confirm_payment' && (
+                  {unified.action === 'confirm_payment' && bookingId && (
                     <button
                       onClick={() => handleConfirmPayment(bookingId)}
                       className="w-full md:w-auto px-5 py-2.5 bg-emerald-500 text-white rounded-xl font-semibold hover:bg-emerald-600 shadow-lift flex items-center gap-2"
