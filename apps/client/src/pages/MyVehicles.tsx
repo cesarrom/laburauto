@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, Settings2, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useVehicles } from '../hooks/useVehicles';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -49,35 +49,59 @@ export default function MyVehicles() {
     });
   };
 
-  if (isLoading) return <div className="p-8 text-center text-gray-500">Loading your vehicles...</div>;
+  if (isLoading) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="rounded-[32px] border border-border bg-surface p-8 shadow-soft animate-pulse">
+          <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Sincronizando flota</p>
+          <p className="mt-2 text-2xl font-display text-text">Cargando tus vehículos…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">My Vehicles</h1>
-          <p className="text-gray-500">Manage your fleet and check review status.</p>
+      <header className="rounded-[32px] border border-border bg-surface p-6 md:p-10 shadow-soft flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-3">
+          <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Panel del publicador</p>
+          <h1 className="text-3xl md:text-4xl font-display">Administrá documentación, fotos y disponibilidad.</h1>
+          <p className="text-text-muted max-w-2xl">
+            Actualizá media, cláusulas y auditorías sin salir de Laburauto. Cada auto refleja su estado de revisión y alertas clave.
+          </p>
         </div>
-        <Link
-          to="/publish-vehicle"
-          className="inline-flex items-center gap-2 rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
-        >
-          <Plus size={16} />
-          Add Vehicle
-        </Link>
-      </div>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            to="/publish-vehicle"
+            className="inline-flex items-center gap-2 rounded-2xl bg-brand-500 px-5 py-3 text-sm font-semibold text-white shadow-lift hover:bg-brand-600"
+          >
+            <Plus size={16} />
+            Publicar vehículo
+          </Link>
+          <Link
+            to="/applications"
+            className="inline-flex items-center gap-2 rounded-2xl border border-border px-5 py-3 text-sm font-semibold text-text hover:border-brand-500"
+          >
+            <Settings2 size={16} />
+            Ver postulaciones
+          </Link>
+        </div>
+      </header>
 
       {myVehicles.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <h3 className="mt-2 text-sm font-semibold text-gray-900">No vehicles added</h3>
-          <p className="mt-1 text-sm text-gray-500">Get started by publishing your first vehicle.</p>
+        <div className="rounded-[32px] border border-dashed border-border bg-surface px-8 py-12 text-center shadow-soft">
+          <div className="mx-auto mb-4 h-12 w-12 rounded-2xl bg-brand-500/10 text-brand-600 flex items-center justify-center">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <p className="text-sm uppercase tracking-[0.4em] text-text-muted">Aún sin flota</p>
+          <p className="mt-4 text-text-muted">Publicá tu primer vehículo para habilitar contratos, auditorías y mensajería operativa.</p>
           <div className="mt-6">
             <Link
               to="/publish-vehicle"
-              className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="inline-flex items-center gap-2 rounded-2xl bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600"
             >
               <Plus size={16} />
-              Publish Vehicle
+              Crear ficha
             </Link>
           </div>
         </div>
@@ -89,9 +113,9 @@ export default function MyVehicles() {
               {vehicle.status === 'pending_review' && (
                 <button
                   onClick={() => setEditingVehicle(vehicle)}
-                  className="absolute top-4 left-4 z-10 bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg"
+                  className="absolute top-4 left-4 z-10 rounded-full bg-brand-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white shadow-lift hover:bg-brand-600"
                 >
-                  Edit Media
+                  Actualizar media
                 </button>
               )}
             </div>

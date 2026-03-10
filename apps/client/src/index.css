@@ -99,4 +99,16 @@
       animation: none !important;
     }
   }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-lift {
+    box-shadow: var(--shadow-lift);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
 }

@@ -94,7 +94,7 @@ export default function Landing() {
         <div className="absolute -top-40 right-[-140px] h-[520px] w-[520px] rounded-full bg-brand-500/20 blur-3xl opacity-70 animate-orbit" />
         <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 py-8 relative z-10">
           <Link to="/" className="flex items-center gap-3 font-display text-lg tracking-tight">
-            <div className="h-11 w-11 rounded-2xl bg-surface text-brand-600 flex items-center justify-center shadow-[var(--shadow-soft)]">
+            <div className="h-11 w-11 rounded-2xl bg-surface text-brand-600 flex items-center justify-center shadow-soft">
               <Car className="h-5 w-5" />
             </div>
             Laburauto
@@ -104,7 +104,7 @@ export default function Landing() {
             <Link to="/login" className="px-4 py-2 rounded-full border border-border/70 text-text-muted hover:text-text transition-colors">Ingresar</Link>
             <Link
               to="/register"
-              className="inline-flex items-center gap-2 rounded-full bg-brand-500 px-5 py-2 font-semibold text-white shadow-[var(--shadow-lift)] hover:bg-brand-600"
+              className="inline-flex items-center gap-2 rounded-full bg-brand-500 px-5 py-2 font-semibold text-white shadow-lift hover:bg-brand-600"
             >
               Crear cuenta
               <ArrowUpRight className="h-4 w-4" />
@@ -114,11 +114,11 @@ export default function Landing() {
 
         <div className="max-w-6xl mx-auto px-6 pb-20 pt-10 md:pt-16 relative z-10 text-center">
           <div className="flex justify-center mb-6">
-            <p className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-text-muted shadow-[var(--shadow-soft)]">
+            <p className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-text-muted shadow-soft">
               Alquileres P2P · Respaldados legalmente
             </p>
           </div>
-          <div className="orbit-gradient rounded-[36px] bg-surface/80 px-6 py-10 md:px-12 shadow-[var(--shadow-soft)]">
+          <div className="orbit-gradient rounded-[36px] bg-surface/80 px-6 py-10 md:px-12 shadow-soft">
             <h1 className="text-4xl md:text-6xl font-display font-semibold leading-tight">
               Formalizá cualquier alquiler informal en minutos
               <span className="block text-brand-500">sin abogados ni fricción innecesaria.</span>
@@ -129,7 +129,7 @@ export default function Landing() {
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/register"
-                className="inline-flex justify-center items-center gap-2 rounded-2xl bg-brand-500 px-8 py-3 text-base font-semibold text-white shadow-[var(--shadow-lift)] hover:bg-brand-600"
+                className="inline-flex justify-center items-center gap-2 rounded-2xl bg-brand-500 px-8 py-3 text-base font-semibold text-white shadow-lift hover:bg-brand-600"
               >
                 Crear contrato gratis
                 <PenLine className="h-5 w-5" />
@@ -147,7 +147,7 @@ export default function Landing() {
             {stats.map((stat, index) => (
               <div
                 key={stat.label}
-                className="rounded-2xl bg-surface border border-border px-6 py-4 shadow-[var(--shadow-soft)] animate-fade-up"
+                className="rounded-2xl bg-surface border border-border px-6 py-4 shadow-soft animate-fade-up"
                 style={{ animationDelay: `${index * 0.08}s` }}
               >
                 <p className="text-sm uppercase tracking-[0.4em] text-text-muted">{stat.label}</p>
@@ -168,7 +168,7 @@ export default function Landing() {
             {featureCards.map(({ icon: Icon, title, description }, index) => (
               <div
                 key={title}
-                className="rounded-3xl bg-surface border border-border p-6 shadow-[var(--shadow-soft)] transition hover:-translate-y-1 hover:shadow-[var(--shadow-lift)] animate-fade-up"
+                className="rounded-3xl bg-surface border border-border p-6 shadow-soft transition hover:-translate-y-1 hover:shadow-lift animate-fade-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="h-12 w-12 rounded-2xl bg-surface-muted flex items-center justify-center mb-4">
@@ -202,7 +202,7 @@ export default function Landing() {
               ))}
             </div>
           </div>
-          <div className="rounded-3xl bg-surface border border-border p-8 shadow-[var(--shadow-lift)] animate-fade-up" style={{ animationDelay: '0.2s' }}>
+          <div className="rounded-3xl bg-surface border border-border p-8 shadow-lift animate-fade-up" style={{ animationDelay: '0.2s' }}>
             <div className="flex items-center gap-3 text-sm text-text-muted">
               <ScrollText className="h-5 w-5 text-brand-500" />
               Bitácora de evidencia
@@ -219,7 +219,7 @@ export default function Landing() {
         </section>
 
         <section className="max-w-6xl mx-auto px-6 pb-20">
-          <div className="rounded-[36px] border border-border bg-surface p-10 shadow-[var(--shadow-soft)]">
+          <div className="rounded-[36px] border border-border bg-surface p-10 shadow-soft">
             <div className="grid md:grid-cols-3 gap-6">
               {proofPoints.map(({ icon: Icon, title, text }, index) => (
                 <div key={title} className="flex gap-4 animate-fade-up" style={{ animationDelay: `${0.1 + index * 0.1}s` }}>
