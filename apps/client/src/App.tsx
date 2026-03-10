@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
+import Landing from './pages/Landing';
 import VehicleDetails from './pages/VehicleDetails';
 import Bookings from './pages/Bookings';
 import Notifications from './pages/Notifications';
@@ -28,6 +29,11 @@ import SsoCallback from './pages/SsoCallback';
 function OnboardingGate({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const location = useLocation();
+
+  // Fast-path: authenticated users hitting marketing landing should go to app dashboard
+  if (user && location.pathname === '/') {
+    return <Navigate to="/app" replace />;
+  }
 
   // Admins bypass onboarding entirely
   if (user && user.role === 'admin') {
@@ -59,10 +65,11 @@ function AppContent() {
     <OnboardingGate>
       <Layout>
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/onboarding" element={<PrivateRoute><Onboarding /></PrivateRoute>} />
-          <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+          <Route path="/app" element={<PrivateRoute><Home /></PrivateRoute>} />
           <Route path="/vehicles/:id" element={<PrivateRoute><VehicleDetails /></PrivateRoute>} />
           <Route path="/bookings" element={<PrivateRoute><Bookings /></PrivateRoute>} />
           <Route path="/publish-vehicle" element={<PrivateRoute><PublishVehicleWizard /></PrivateRoute>} />
