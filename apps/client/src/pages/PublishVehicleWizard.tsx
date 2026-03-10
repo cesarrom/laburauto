@@ -19,6 +19,20 @@ import {
   type VehicleInfoData, type ShiftData, type LocationData, type AccessData, type PublisherDocumentsData
 } from '../schemas/validation';
 
+type AddressSearchResult = {
+  address?: string;
+  title?: string;
+  description?: string;
+  place_id?: string;
+  lat: number;
+  lng: number;
+};
+
+type VehicleVersionOption = {
+  id: string;
+  version: string;
+};
+
 const STEPS = [
   { id: 1, name: 'Photos', icon: Camera },
   { id: 2, name: 'Documents', icon: FileText },
@@ -41,7 +55,7 @@ export default function PublishVehicleWizard() {
   // Step Data State
   const [photos, setPhotos] = useState<string[]>([]);
   const [shifts, setShifts] = useState<ShiftData[]>([]);
-  const [addressSearchResults, setAddressSearchResults] = useState<any[]>([]);
+  const [addressSearchResults, setAddressSearchResults] = useState<AddressSearchResult[]>([]);
 
   // Forms
   const vehicleForm = useForm<VehicleInfoData>({
@@ -120,7 +134,7 @@ export default function PublishVehicleWizard() {
 
         console.log('AI Prefill Success');
       }
-    } catch (err) {
+    } catch {
       console.log('AI Silent fail');
     }
   };
@@ -184,9 +198,14 @@ export default function PublishVehicleWizard() {
   const inputClasses = "w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-600 focus:border-transparent text-gray-900 bg-white placeholder-gray-400";
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
-      {/* Progress Bar */}
-      <div className="mb-8">
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 text-text">
+      <header className="rounded-[32px] border border-border bg-surface p-6 md:p-10 shadow-soft space-y-3">
+        <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Laburauto · Publicación guiada</p>
+        <h1 className="text-3xl md:text-4xl font-display">Publicá un vehículo con toda la documentación respaldada.</h1>
+        <p className="text-text-muted max-w-3xl">Fotos, cláusulas, turnos y logística se cargan en un flujo único para que el contrato quede listo sin correos ni planillas externas.</p>
+      </header>
+
+      <div className="rounded-[32px] border border-border bg-surface p-6 shadow-soft">
         <div className="flex items-center justify-between mb-4">
           {STEPS.map((step, index) => {
             const Icon = step.icon;
@@ -197,18 +216,18 @@ export default function PublishVehicleWizard() {
               <div key={step.id} className="flex items-center flex-1">
                 <div className="flex flex-col items-center flex-1">
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isActive ? 'bg-blue-600 text-white scale-110' :
-                      isCompleted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'
+                    className={`w-12 h-12 rounded-full flex items-center justify-center border transition-all ${isActive ? 'bg-brand-500 text-white scale-110 border-brand-400' :
+                      isCompleted ? 'bg-emerald-500 text-white border-emerald-400' : 'bg-surface-muted text-text-muted border-border'
                       }`}
                   >
                     <Icon size={20} />
                   </div>
-                  <span className={`text-xs mt-2 ${isActive ? 'font-semibold text-blue-600' : 'text-gray-500'}`}>
+                  <span className={`text-xs mt-2 uppercase tracking-[0.3em] ${isActive ? 'font-semibold text-brand-500' : 'text-text-muted'}`}>
                     {step.name}
                   </span>
                 </div>
                 {index < STEPS.length - 1 && (
-                  <div className={`h-1 flex-1 mx-2 ${isCompleted ? 'bg-green-500' : 'bg-gray-200'}`} />
+                  <div className={`h-1 flex-1 mx-2 rounded-full ${isCompleted ? 'bg-emerald-400' : 'bg-border'}`} />
                 )}
               </div>
             );
@@ -216,8 +235,7 @@ export default function PublishVehicleWizard() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-xl p-8">
-
+      <div className="rounded-[32px] border border-border bg-surface shadow-soft p-6 md:p-10">
         {/* STEP 1: PHOTOS */}
         {currentStep === 1 && (
           <div className="space-y-6">
@@ -433,22 +451,22 @@ export default function PublishVehicleWizard() {
                     try {
                       const brand = vehicleForm.watch('brand');
                       const model = vehicleForm.watch('model');
-                      const res = await api.get(`/vehicles-db/versions?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}&q=${encodeURIComponent(val)}`);
-                      // Find exact match
-                      const match = res.data.results.find((v: any) => v.version === val);
+                      const res = await api.get<{ results: VehicleVersionOption[] }>(`/vehicles-db/versions?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}&q=${encodeURIComponent(val)}`);
+                      const match = res.data.results.find((v) => v.version === val);
                       if (match) {
                         vehicleForm.setValue('vehicleModelId', match.id);
                       }
-                    } catch (e) { console.error(e); }
+                    } catch (e) {
+                      console.error(e);
+                    }
                   }
                 }}
                 fetchOptions={async (query) => {
                   const brand = vehicleForm.watch('brand');
                   const model = vehicleForm.watch('model');
                   if (!brand || !model) return [];
-                  const res = await api.get(`/vehicles-db/versions?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}&q=${query}`);
-                  // Return just version strings
-                  return res.data.results.map((r: any) => r.version);
+                  const res = await api.get<{ results: VehicleVersionOption[] }>(`/vehicles-db/versions?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}&q=${query}`);
+                  return res.data.results.map((r) => r.version);
                 }}
                 placeholder={vehicleForm.watch('model') ? "Drive 1.3, XLT, etc." : "Select Model first"}
                 required
@@ -588,18 +606,17 @@ export default function PublishVehicleWizard() {
               value={locationForm.watch('address')}
               onChange={(val) => {
                 locationForm.setValue('address', val);
-                const match = addressSearchResults.find(r => r.address === val || r.title === val);
+                const match = addressSearchResults.find(r => (r.address ?? r.title) === val);
                 if (match) {
                   locationForm.setValue('lat', match.lat);
                   locationForm.setValue('long', match.lng);
                 }
               }}
               fetchOptions={async (q) => {
-                const res = await api.get(`/navigation/search?text=${q}`);
-                // Filter out bad results or just take top 5
-                const results = res.data.results || [];
+                const res = await api.get<{ results: AddressSearchResult[] }>(`/navigation/search?text=${q}`);
+                const results = res.data.results ?? [];
                 setAddressSearchResults(results);
-                return results.map((r: any) => r.address || r.title);
+                return results.map((r) => r.address || r.title || '').filter(Boolean);
               }}
               placeholder="Type address..."
             />

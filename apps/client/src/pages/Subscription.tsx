@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
 import api from '../lib/api';
@@ -30,43 +30,40 @@ export default function Subscription() {
   const [confirmText, setConfirmText] = useState('');
   const CONFIRM_PHRASE = 'CANCEL SUBSCRIPTION AND DELETE ALL VEHICLES';
 
-  useEffect(() => {
-    if (user?.id) {
-      const verify = () => {
-        api.post('/payments/verify', { userId: user.id })
-          .catch(err => console.error('Auto-verify failed', err))
-          .finally(() => fetchSubscriptionInfo());
-      };
-
-      // Auto-verify on mount
-      verify();
-
-      // Auto-verify when user returns to tab
-      window.addEventListener('focus', verify);
-      return () => window.removeEventListener('focus', verify);
-    }
-  }, [user]);
-
-  const fetchSubscriptionInfo = async () => {
+  const fetchSubscriptionInfo = useCallback(async () => {
+    if (!user?.id) return;
     setLoading(true);
     try {
-      const res = await api.get(`/payments/subscriptions/me?userId=${user?.id}`);
+      const res = await api.get(`/payments/subscriptions/me?userId=${user.id}`);
       setSubscriptionInfo(res.data);
     } catch (err) {
       console.error('Error fetching subscription info:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const verify = () => {
+      api.post('/payments/verify', { userId: user.id })
+        .catch(err => console.error('Auto-verify failed', err))
+        .finally(() => { void fetchSubscriptionInfo(); });
+    };
+
+    verify();
+    window.addEventListener('focus', verify);
+    return () => window.removeEventListener('focus', verify);
+  }, [user?.id, fetchSubscriptionInfo]);
 
   const handleSubscribe = async () => {
     try {
       await openSubscription({ autoStart: true });
-      // On success (resolveSubscription in the modal), refresh local data
       fetchSubscriptionInfo();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Subscription error', err);
-      setError('Failed to initiate subscription. Please try again.');
+      setError('No pudimos iniciar la suscripción. Intentá nuevamente.');
     }
   };
 
@@ -90,8 +87,8 @@ export default function Subscription() {
       setDisputePaymentId(null);
       setConfirmText('');
       fetchSubscriptionInfo();
-    } catch (err) {
-      alert(`Failed to process ${disputePaymentId ? 'dispute' : 'cancellation'}.`);
+    } catch {
+      alert(`No pudimos procesar la ${disputePaymentId ? 'reversión' : 'cancelación'}.`);
     } finally {
       setLoading(false);
     }
@@ -113,176 +110,178 @@ export default function Subscription() {
   if (!user) return null;
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-8 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold flex items-center gap-3 text-gray-900">
-          <div className="bg-blue-600 p-2 rounded-xl">
-            <CreditCard className="w-8 h-8 text-white" />
-          </div>
-          Subscription
-        </h1>
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8 text-text">
+      <header className="rounded-[32px] border border-border bg-surface p-6 md:p-10 shadow-soft flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-3">
+          <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Laburauto · Suscripción operativa</p>
+          <h1 className="text-3xl md:text-4xl font-display flex items-center gap-3">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500 text-white">
+              <CreditCard className="h-5 w-5" />
+            </span>
+            Gestioná tu plan Publisher Pro
+          </h1>
+          <p className="text-text-muted max-w-2xl">
+            Mantener la suscripción activa garantiza soporte prioritario, auditorías automáticas y conservación del historial probatorio.
+          </p>
+        </div>
         {subscriptionInfo?.status === 'active' && (
-          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-sm font-bold border border-green-200">
-            <CheckCircle2 size={16} /> Active
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-400">
+            <CheckCircle2 className="h-4 w-4" /> Plan activo
           </span>
         )}
-      </div>
+      </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-        {/* Left Col: Status & Plan */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-bold text-gray-800 mb-4">Current Plan</h2>
-            <div className="space-y-4">
-              <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Publisher Pro</p>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-3xl font-extrabold text-blue-600">$15.00</span>
-                  <span className="text-gray-400 font-medium">/mo</span>
-                </div>
+        <section className="space-y-6">
+          <div className="rounded-[28px] border border-border bg-surface p-6 shadow-soft">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Plan actual</p>
+                <h2 className="text-2xl font-display mt-2">Publisher Pro</h2>
               </div>
-
-              {subscriptionInfo?.status !== 'active' ? (
-                <button
-                  onClick={handleSubscribe}
-                  disabled={loading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
-                >
-                  <ExternalLink size={20} /> Subscribe Now
-                </button>
-              ) : (
-                <div className="space-y-4 pt-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-600 px-1">
-                    <History size={16} className="text-blue-500" />
-                    <span>Next billing date: Monthly</span>
-                  </div>
-                  <button
-                    onClick={() => setCancelOpen(true)}
-                    className="w-full text-red-600 bg-red-50 py-3 rounded-xl font-bold hover:bg-red-100 transition border border-red-100"
-                  >
-                    Cancel Subscription
-                  </button>
-                </div>
-              )}
+              <div className="text-right">
+                <p className="text-sm text-text-muted">USD</p>
+                <p className="text-3xl font-display text-brand-500">15</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-text-muted">por mes</p>
+              </div>
             </div>
-            {error && <p className="text-red-500 text-sm mt-3 font-medium">{error}</p>}
+
+            {subscriptionInfo?.status !== 'active' ? (
+              <button
+                onClick={handleSubscribe}
+                disabled={loading}
+                className="mt-6 w-full rounded-2xl bg-brand-500 py-3 text-sm font-semibold text-white shadow-lift transition hover:bg-brand-600 disabled:opacity-60"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <ExternalLink className="h-4 w-4" /> Activar suscripción
+                </div>
+              </button>
+            ) : (
+              <div className="mt-6 space-y-4">
+                <div className="flex items-center gap-2 text-sm text-text-muted">
+                  <History className="h-4 w-4 text-brand-500" /> Facturación mensual automática
+                </div>
+                <button
+                  onClick={() => setCancelOpen(true)}
+                  className="w-full rounded-2xl border border-border px-4 py-3 text-sm font-semibold text-red-500 hover:border-red-400"
+                >
+                  Cancelar suscripción
+                </button>
+              </div>
+            )}
+
+            {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
           </div>
 
-          <div className="bg-orange-50 rounded-2xl p-6 border border-orange-100">
-            <h3 className="text-orange-900 font-bold flex items-center gap-2 mb-2">
-              <ShieldAlert size={18} /> Cancellation Warning
+          <div className="rounded-[28px] border border-amber-400/40 bg-amber-50 p-6 text-amber-900 shadow-soft">
+            <h3 className="flex items-center gap-2 text-lg font-semibold">
+              <ShieldAlert className="h-5 w-5" /> Advertencia de cancelación
             </h3>
-            <p className="text-orange-800 text-sm leading-relaxed">
-              Cancelling your subscription will immediately <strong>delete all your vehicles</strong> and cancel all active bookings. This action cannot be undone.
+            <p className="mt-3 text-sm leading-relaxed">
+              Al cancelar, eliminaremos vehículos publicados, detendremos contratos activos y notificaremos a conductores. Este paso es irreversible.
             </p>
           </div>
-        </div>
+        </section>
 
-        {/* Right Col: Billing History */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-              <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <History className="text-blue-500" /> Billing History
+        <section className="lg:col-span-2 rounded-[32px] border border-border bg-surface shadow-soft">
+          <div className="flex items-center justify-between border-b border-border/70 px-6 py-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Historial de cobros</p>
+              <h2 className="text-xl font-display flex items-center gap-2">
+                <History className="h-5 w-5 text-brand-500" /> Pagos recientes
               </h2>
             </div>
-
-            <div className="overflow-x-auto">
-              {subscriptionInfo?.executions && subscriptionInfo.executions.length > 0 ? (
-                <table className="w-full text-left">
-                  <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    <tr>
-                      <th className="px-6 py-3">Date</th>
-                      <th className="px-6 py-3">Amount</th>
-                      <th className="px-6 py-3">Status</th>
-                      <th className="px-6 py-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {subscriptionInfo.executions.map((exec, index) => (
-                      <tr key={exec.id} className="hover:bg-gray-50/50 transition duration-200">
-                        <td className="px-6 py-4">
-                          <div className="font-medium text-gray-900">
-                            {new Date(exec.created_at).toLocaleDateString()}
-                          </div>
-                          <div className="text-xs text-gray-400 font-mono">#{exec.order_id}</div>
-                        </td>
-                        <td className="px-6 py-4 font-bold text-gray-700">
-                          {exec.currency} {exec.amount_paid.toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`px-2 py-1 rounded text-xs font-bold ${['COMPLETED', 'PAID'].includes(exec.status) ? 'bg-green-100 text-green-700' :
-                            exec.status === 'REFUNDED' ? 'bg-blue-100 text-blue-700' :
-                              exec.status === 'IN DISPUTE' ? 'bg-yellow-100 text-yellow-700' :
-                                exec.status === 'PENDING' ? 'bg-orange-100 text-orange-700' :
-                                  'bg-gray-100 text-gray-600'
-                            }`}>
-                            {exec.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          {index === 0 && ['COMPLETED', 'PAID'].includes(exec.status) && isWithin10Days(exec.created_at) && (
-                            <button
-                              onClick={() => handleDispute(exec.id.toString())}
-                              className="text-xs font-bold text-red-600 hover:text-red-700 underline"
-                            >
-                              Refund & Cancel
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="px-6 py-12 text-center text-gray-500">
-                  <Clock className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                  <p className="font-medium">No billing records found</p>
-                </div>
-              )}
-            </div>
           </div>
-        </div>
+          <div className="overflow-x-auto">
+            {subscriptionInfo?.executions && subscriptionInfo.executions.length > 0 ? (
+              <table className="w-full text-left text-sm">
+                <thead className="text-xs uppercase tracking-[0.3em] text-text-muted">
+                  <tr>
+                    <th className="px-6 py-3">Fecha</th>
+                    <th className="px-6 py-3">Monto</th>
+                    <th className="px-6 py-3">Estado</th>
+                    <th className="px-6 py-3 text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {subscriptionInfo.executions.map((exec, index) => (
+                    <tr key={exec.id} className="hover:bg-surface-muted/60">
+                      <td className="px-6 py-4">
+                        <p className="font-medium">{new Date(exec.created_at).toLocaleDateString('es-AR')}</p>
+                        <p className="text-xs text-text-muted font-mono">#{exec.order_id}</p>
+                      </td>
+                      <td className="px-6 py-4 font-semibold">
+                        {exec.currency} {exec.amount_paid.toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${['COMPLETED', 'PAID'].includes(exec.status)
+                          ? 'bg-emerald-400/15 text-emerald-400'
+                          : exec.status === 'REFUNDED'
+                            ? 'bg-sky-400/15 text-sky-400'
+                            : exec.status === 'IN DISPUTE'
+                              ? 'bg-amber-400/15 text-amber-500'
+                              : exec.status === 'PENDING'
+                                ? 'bg-orange-400/15 text-orange-500'
+                                : 'bg-border text-text-muted'
+                        }`}>
+                          {exec.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        {index === 0 && ['COMPLETED', 'PAID'].includes(exec.status) && isWithin10Days(exec.created_at) && (
+                          <button
+                            onClick={() => handleDispute(exec.id.toString())}
+                            className="text-xs font-semibold text-red-500 hover:text-red-400"
+                          >
+                            Reintegro y baja total
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="px-6 py-14 text-center text-text-muted">
+                <Clock className="mx-auto mb-3 h-10 w-10 opacity-40" />
+                Sin movimientos registrados todavía.
+              </div>
+            )}
+          </div>
+        </section>
       </div>
 
-      {/* Cancellation Modal */}
       {cancelOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in duration-200">
-            <div className="bg-red-600 px-6 py-4 flex items-center gap-3 text-white">
-              <AlertTriangle />
-              <h2 className="font-bold text-xl">{disputePaymentId ? 'Confirm Refund & Cancellation' : 'Confirm Cancellation'}</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-8 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-[28px] border border-border bg-surface shadow-glow">
+            <div className="flex items-center gap-3 border-b border-border px-6 py-4 text-red-500">
+              <AlertTriangle className="h-5 w-5" />
+              <h3 className="text-lg font-display">{disputePaymentId ? 'Confirmar reintegro + cancelación' : 'Confirmar cancelación'}</h3>
             </div>
-            <div className="p-6 space-y-4">
-              <p className="text-gray-700">
+            <div className="space-y-4 px-6 py-6 text-sm">
+              <p>
                 {disputePaymentId
-                  ? `This will refund transaction #${disputePaymentId} and permanently:`
-                  : 'This will cancel your dLocal Go subscription and permanently:'
-                }
+                  ? `Reintegraremos la transacción #${disputePaymentId} y permanentemente:`
+                  : 'Cancelarás tu suscripción y permanentemente:'}
               </p>
-              <ul className="space-y-2 text-sm text-gray-600 list-disc pl-5">
-                <li>Delete all your published vehicles</li>
-                <li>Cancel all confirmed and active bookings</li>
-                <li>Notify all affected drivers</li>
+              <ul className="list-disc space-y-2 pl-5 text-text-muted">
+                <li>Eliminaremos tus vehículos publicados.</li>
+                <li>Se cancelarán reservas confirmadas o activas.</li>
+                <li>Notificaremos a los conductores afectados.</li>
               </ul>
-
-              <div className="pt-2">
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">
-                  Type the following to confirm:
-                </label>
-                <div className="bg-red-50 text-red-700 text-xs font-bold p-2 rounded border border-red-100 mb-3 select-none">
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-[0.3em] text-text-muted">Escribí la frase para continuar</label>
+                <div className="mt-2 rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-[11px] font-semibold text-red-500">
                   {CONFIRM_PHRASE}
                 </div>
                 <input
                   type="text"
                   value={confirmText}
                   onChange={(e) => setConfirmText(e.target.value)}
-                  placeholder="Type the confirmation phrase here"
-                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-red-500 outline-none transition"
+                  placeholder="Ingresá la frase exacta"
+                  className="mt-3 w-full rounded-2xl border border-border bg-background px-4 py-3 focus:border-red-400"
                 />
               </div>
-
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => {
@@ -290,16 +289,16 @@ export default function Subscription() {
                     setDisputePaymentId(null);
                     setConfirmText('');
                   }}
-                  className="flex-1 bg-gray-100 text-gray-600 py-3 rounded-xl font-bold hover:bg-gray-200 transition"
+                  className="flex-1 rounded-2xl border border-border px-4 py-3 text-sm font-semibold text-text hover:border-brand-500"
                 >
-                  Go Back
+                  Volver
                 </button>
                 <button
                   onClick={handleCancel}
                   disabled={confirmText !== CONFIRM_PHRASE || loading}
-                  className="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition disabled:opacity-30 flex items-center justify-center gap-2"
+                  className="flex-1 rounded-2xl bg-red-500 px-4 py-3 text-sm font-semibold text-white shadow-lift transition disabled:opacity-40"
                 >
-                  {loading ? 'Processing...' : (disputePaymentId ? 'Refund & Cancel Auto' : 'Cancel Auto')}
+                  {loading ? 'Procesando…' : disputePaymentId ? 'Reintegrar y cancelar' : 'Cancelar plan'}
                 </button>
               </div>
             </div>
