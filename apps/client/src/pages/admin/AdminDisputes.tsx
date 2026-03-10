@@ -1,8 +1,16 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../lib/api';
-import { AlertCircle, Shield, User, Car } from 'lucide-react';
+import { AlertTriangle, Shield, User, Car } from 'lucide-react';
 import EvidenceKitModal from '../../components/modals/EvidenceKitModal';
+
+interface DisputeBooking {
+  id: number;
+  disputeStatus?: string;
+  disputeNotes?: string;
+  driver?: { name?: string };
+  vehicle?: { vehicleModel?: { brandName?: string; modelName?: string } };
+}
 
 export default function AdminDisputes() {
   const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
@@ -11,97 +19,109 @@ export default function AdminDisputes() {
     queryKey: ['admin-disputes'],
     queryFn: async () => {
       const res = await api.get('/bookings?disputeStatus=pending');
-      return res.data;
+      return res.data as DisputeBooking[];
     }
   });
 
-  if (isLoading) return <div className="p-8 text-center text-gray-500">Loading disputes...</div>;
+  if (isLoading) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="rounded-[32px] border border-border bg-surface p-8 shadow-soft animate-pulse text-center">
+          <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Resolviendo disputas</p>
+          <p className="mt-2 text-2xl font-display text-text">Cargando casos pendientes…</p>
+        </div>
+      </div>
+    );
+  }
+
+  const totalCases = disputes?.length ?? 0;
 
   return (
-    <div className="max-w-6xl mx-auto p-8">
-      <div className="mb-10 flex justify-between items-end">
-        <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight italic uppercase">Dispute Resolution</h1>
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs mt-2">
-            Mediate conflicts and review evidence
-          </p>
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8 text-text">
+      <header className="rounded-[32px] border border-border bg-surface p-6 md:p-10 shadow-soft flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-3">
+          <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Backoffice · Mediación operativa</p>
+          <h1 className="text-3xl md:text-4xl font-display">Revisá evidencia y resolvé disputas con contexto completo.</h1>
+          <p className="text-text-muted max-w-3xl">Cada caso trae notas, datos del conductor y del vehículo para que puedas decidir en segundos.</p>
         </div>
-        <div className="flex items-center gap-2 p-3 bg-red-50 rounded-2xl text-red-600 border border-red-100">
-          <AlertCircle size={20} />
-          <span className="text-xs font-black uppercase tracking-widest">{disputes?.length || 0} Open Cases</span>
+        <div className="rounded-2xl border border-red-400/40 bg-red-500/10 px-5 py-4 text-center">
+          <p className="text-[11px] uppercase tracking-[0.4em] text-red-400">Casos abiertos</p>
+          <p className="text-2xl font-display text-red-400">{totalCases}</p>
         </div>
-      </div>
+      </header>
 
       <div className="grid grid-cols-1 gap-6">
-        {disputes?.length === 0 ? (
-          <div className="py-20 text-center bg-emerald-50 rounded-[3rem] border-4 border-dashed border-emerald-100 flex flex-col items-center gap-4">
-            <Shield className="w-16 h-16 text-emerald-200" />
-            <p className="text-slate-400 font-black uppercase tracking-widest italic">Peace prevails! No active disputes.</p>
+        {totalCases === 0 ? (
+          <div className="py-20 text-center border border-dashed border-border rounded-[32px] bg-surface flex flex-col items-center gap-4">
+            <Shield className="w-16 h-16 text-emerald-300" />
+            <p className="text-text-muted">Paz total: no hay disputas activas.</p>
           </div>
-        ) : disputes?.map((booking: any) => (
-          <div key={booking.id} className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-red-100 flex flex-col gap-6 hover:shadow-2xl transition-all">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-4">
-                <div className="p-4 bg-red-50 rounded-3xl text-red-500">
-                  <AlertCircle size={32} />
+        ) : (
+          disputes!.map((booking) => (
+            <div key={booking.id} className="rounded-[32px] border border-border p-6 shadow-soft hover:shadow-lift transition flex flex-col gap-6">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="flex items-start gap-4">
+                  <div className="p-4 bg-red-500/10 rounded-3xl text-red-500">
+                    <AlertTriangle size={32} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-display">Caso #{booking.id}</h3>
+                    <p className="text-xs uppercase tracking-[0.3em] text-text-muted">Estado: {booking.disputeStatus || 'Pendiente'}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-black text-slate-900">Case #D-{booking.id}</h3>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Status: {booking.disputeStatus}</p>
+                <button
+                  onClick={() => setSelectedBookingId(booking.id)}
+                  className="inline-flex items-center gap-2 rounded-2xl bg-brand-500 px-5 py-3 text-sm font-semibold text-white shadow-lift hover:bg-brand-600"
+                >
+                  <Shield size={16} /> Abrir kit probatorio
+                </button>
+              </div>
+
+              <div className="rounded-2xl border border-border/70 bg-surface-muted px-5 py-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-text-muted">Notas registradas</p>
+                <p className="mt-2 text-sm text-text">“{booking.disputeNotes || 'Sin notas aún'}”</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center gap-4 rounded-2xl border border-border px-4 py-3">
+                  <User className="text-text-muted" />
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.3em] text-text-muted">Conductor</p>
+                    <p className="font-semibold">{booking.driver?.name || 'Desconocido'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 rounded-2xl border border-border px-4 py-3">
+                  <Car className="text-text-muted" />
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.3em] text-text-muted">Vehículo</p>
+                    <p className="font-semibold">
+                      {booking.vehicle?.vehicleModel?.brandName} {booking.vehicle?.vehicleModel?.modelName}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={() => setSelectedBookingId(booking.id)}
-                className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-black transition-all shadow-lg flex items-center gap-2"
-              >
-                <Shield size={16} /> Open Evidence Kit
-              </button>
-            </div>
 
-            <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Dispute Notes:</p>
-              <p className="text-sm text-slate-700 italic">"{booking.disputeNotes || 'No notes provided'}"</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-2xl">
-                <User className="text-slate-300" />
-                <div>
-                  <p className="text-[10px] font-black uppercase text-slate-400">Renter</p>
-                  <p className="text-sm font-bold">{booking.driver?.name}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-2xl">
-                <Car className="text-slate-300" />
-                <div>
-                  <p className="text-[10px] font-black uppercase text-slate-400">Vehicle</p>
-                  <p className="text-sm font-bold">{booking.vehicle?.vehicleModel?.brandName} {booking.vehicle?.vehicleModel?.modelName}</p>
-                </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 sm:items-center sm:justify-end border-t border-border pt-4">
+                <button className="flex-1 sm:flex-none px-4 py-2 rounded-2xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600">
+                  Resolver a favor del conductor
+                </button>
+                <button className="flex-1 sm:flex-none px-4 py-2 rounded-2xl bg-brand-500 text-white font-semibold hover:bg-brand-600">
+                  Resolver a favor del publicador
+                </button>
+                <button className="flex-1 sm:flex-none px-4 py-2 rounded-2xl border border-border text-text hover:border-brand-500">
+                  Dismiss
+                </button>
               </div>
             </div>
-
-            <div className="flex gap-3 pt-4 border-t border-slate-100">
-              <button className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-emerald-600 transition-all active:scale-95 shadow-lg">
-                Resolve for Renter
-              </button>
-              <button className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-900 transition-all active:scale-95 shadow-lg">
-                Resolve for Publisher
-              </button>
-              <button className="px-6 py-4 bg-slate-100 text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-200 transition-all">
-                Dismiss
-              </button>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
-      {selectedBookingId && (
-        <EvidenceKitModal
-          bookingId={selectedBookingId}
-          isOpen={!!selectedBookingId}
-          onClose={() => setSelectedBookingId(null)}
-        />
-      )}
+      <EvidenceKitModal
+        bookingId={selectedBookingId ?? 0}
+        isOpen={!!selectedBookingId}
+        onClose={() => setSelectedBookingId(null)}
+      />
     </div>
   );
 }
