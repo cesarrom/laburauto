@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { Calendar, Clock, DollarSign, CheckCircle, User, Shield, FileText, Send } from 'lucide-react';
 import ApplicationDetailDialog from '../components/ApplicationDetailDialog';
 import EvidenceKitModal from '../components/modals/EvidenceKitModal';
+import { isAxiosError } from 'axios';
 
 type BookingStatus =
   | 'pending_publisher_signature'
@@ -62,8 +63,12 @@ export default function PublisherApplications() {
     try {
       await approveMutation.mutateAsync(appId);
       alert('Application approved! Renter has been notified.');
-    } catch (error: any) {
-      alert(error.response?.data?.error || 'Failed to approve');
+    } catch (error) {
+      if (isAxiosError<{ error?: string }>(error)) {
+        alert(error.response?.data?.error || 'Failed to approve');
+      } else {
+        alert('Failed to approve');
+      }
     }
   };
 
@@ -73,7 +78,11 @@ export default function PublisherApplications() {
       await confirmPaymentMutation.mutateAsync(bookingId);
       alert('Payment confirmed! Renter can now access the car.');
     } catch (error) {
-      alert('Failed to confirm payment receipt');
+      if (isAxiosError<{ error?: string }>(error)) {
+        alert(error.response?.data?.error || 'Failed to confirm payment receipt');
+      } else {
+        alert('Failed to confirm payment receipt');
+      }
     }
   };
 
@@ -83,14 +92,14 @@ export default function PublisherApplications() {
     try {
       await rejectMutation.mutateAsync(appId);
       alert('Application rejected.');
-    } catch (error: any) {
-      alert(error.response?.data?.error || 'Failed to reject');
+    } catch (error) {
+      if (isAxiosError<{ error?: string }>(error)) {
+        alert(error.response?.data?.error || 'Failed to reject');
+      } else {
+        alert('Failed to reject');
+      }
     }
   };
-
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen"><div className="text-xl">Loading...</div></div>;
-  }
 
   // Unified status logic
   const getUnifiedStatus = (app: ApplicationSummary) => {
@@ -117,8 +126,10 @@ export default function PublisherApplications() {
   };
 
   // Sort applications: Action Required First, then Date
+  const normalizedApps = useMemo(() => applications ?? [], [applications]);
+
   const sortedApps = useMemo(() => {
-    return [...(applications || [])].sort((a, b) => {
+    return [...normalizedApps].sort((a, b) => {
       const statusA = getUnifiedStatus(a);
       const statusB = getUnifiedStatus(b);
 
@@ -135,28 +146,11 @@ export default function PublisherApplications() {
       if (scoreA !== scoreB) return scoreB - scoreA;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-  }, [applications]);
+  }, [normalizedApps]);
 
-  const pendingReviews = applications?.filter((app) => getUnifiedStatus(app).action === 'review').length ?? 0;
-  const awaitingPayments = applications?.filter((app) => getUnifiedStatus(app).action === 'confirm_payment').length ?? 0;
-  const activeBookings = applications?.filter((app) => getUnifiedStatus(app).label === 'Active').length ?? 0;
-    const statusA = getUnifiedStatus(a);
-    const statusB = getUnifiedStatus(b);
-
-    // Priority: 'confirm_payment' > 'review' > others
-    const getScore = (status: any) => {
-      if (status.action === 'confirm_payment') return 3;
-      if (status.action === 'review') return 2;
-      if (status.action === 'wait') return 1;
-      return 0;
-    };
-
-    const scoreA = getScore(statusA);
-    const scoreB = getScore(statusB);
-
-    if (scoreA !== scoreB) return scoreB - scoreA;
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
+  const pendingReviews = normalizedApps.filter((app: ApplicationSummary) => getUnifiedStatus(app).action === 'review').length;
+  const awaitingPayments = normalizedApps.filter((app: ApplicationSummary) => getUnifiedStatus(app).action === 'confirm_payment').length;
+  const activeBookings = normalizedApps.filter((app: ApplicationSummary) => getUnifiedStatus(app).label === 'Active').length;
 
   if (isLoading) {
     return (
