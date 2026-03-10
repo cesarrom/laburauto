@@ -10,6 +10,7 @@ import { eq } from 'drizzle-orm';
 import crypto from 'crypto';
 import { ContractVariableService, VariableContext } from '../services/contractVariableService';
 import { DocusealService } from '../services/docuseal';
+import { resolveDocusealTemplateIdForContractType } from '../services/docusealTemplateService';
 import { requireAuth, requireRole } from '../middleware/auth';
 import { validateRequest } from '../middleware/validate';
 import { createTemplateSchema, signContractSchema } from '@laburauto/shared/zod';
@@ -87,16 +88,6 @@ const validateTemplateWorkflow = (type: 'publisher_enrollment' | 'rental_agreeme
   return null;
 };
 
-const resolveDocusealTemplateId = (type: 'publisher_enrollment' | 'rental_agreement') => {
-  if (type === 'publisher_enrollment') {
-    return process.env.DOCUSEAL_TEMPLATE_PUBLISHER_ENROLLMENT_ID || null;
-  }
-  if (type === 'rental_agreement') {
-    return process.env.DOCUSEAL_TEMPLATE_RENTAL_AGREEMENT_ID || null;
-  }
-  return null;
-};
-
 const parseDocusealContractInstanceId = (payload: any): number | null => {
   const externalId =
     payload?.external_id ||
@@ -160,7 +151,7 @@ export async function ensureDocusealSubmissionForInstance(instanceId: number, ac
     }
   }
 
-  const templateId = resolveDocusealTemplateId(instance.template.type as any);
+  const { templateId, source } = await resolveDocusealTemplateIdForContractType(instance.template.type as any);
   if (!templateId) {
     return null;
   }
@@ -203,6 +194,7 @@ export async function ensureDocusealSubmissionForInstance(instanceId: number, ac
           action: 'docuseal_submission_created',
           submissionId: submission?.id || submission?.data?.id || null,
           roleUrls,
+          templateSource: source,
         }
       ]
     })

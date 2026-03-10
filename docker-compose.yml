@@ -66,6 +66,7 @@ services:
       DOCUSEAL_PUBLIC_URL: ${DOCUSEAL_PUBLIC_URL:-http://localhost:3001}
       DOCUSEAL_API_KEY: ${DOCUSEAL_API_KEY:-}
       DOCUSEAL_WEBHOOK_SECRET: ${DOCUSEAL_WEBHOOK_SECRET:-}
+      DOCUSEAL_TEMPLATE_NAME_REGEX: ${DOCUSEAL_TEMPLATE_NAME_REGEX:-}
     depends_on:
       laburauto-db-migrate:
         condition: service_completed_successfully

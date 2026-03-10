@@ -1,5 +1,20 @@
 import crypto from 'crypto';
 
+type DocusealApiTemplate = {
+  id: string | number;
+  slug?: string;
+  name: string;
+  folder_name?: string;
+  external_id?: string;
+  preview_image_url?: string;
+  documents?: Array<{ preview_image_url?: string } & Record<string, any>>;
+  schema?: Array<Record<string, any>>;
+  fields?: Array<Record<string, any>>;
+  submitters?: Array<Record<string, any>>;
+  created_at?: string;
+  updated_at?: string;
+};
+
 interface DocusealSubmitter {
   email: string;
   role: 'publisher' | 'renter';
@@ -29,6 +44,41 @@ export class DocusealService {
     return this.isEnabled() && !!this.getApiKey();
   }
 
+  static getPublicUrl(): string {
+    return process.env.DOCUSEAL_PUBLIC_URL || this.getInternalUrl();
+  }
+
+  static getTemplateNameRegex(): RegExp | null {
+    const pattern = process.env.DOCUSEAL_TEMPLATE_NAME_REGEX;
+    if (!pattern) return null;
+
+    const regexFromDelimited = () => {
+      if (pattern.startsWith('/') && pattern.lastIndexOf('/') > 0) {
+        const lastSlash = pattern.lastIndexOf('/');
+        const body = pattern.slice(1, lastSlash);
+        const flags = pattern.slice(lastSlash + 1);
+        return new RegExp(body, flags);
+      }
+      return null;
+    };
+
+    try {
+      const explicit = regexFromDelimited();
+      if (explicit) return explicit;
+
+      const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const globToRegex = escaped.replace(/\\\*/g, '.*');
+      return new RegExp(`^${globToRegex}$`, 'i');
+    } catch {
+      return null;
+    }
+  }
+
+  static buildTemplateUrl(templateId: string | number): string {
+    const base = this.getPublicUrl().replace(/\/$/, '');
+    return `${base}/templates/${templateId}`;
+  }
+
   static getWebhookSecret(): string | null {
     return process.env.DOCUSEAL_WEBHOOK_SECRET || null;
   }
@@ -43,6 +93,48 @@ export class DocusealService {
     if (expected.length !== actual.length) return false;
 
     return crypto.timingSafeEqual(expected, actual);
+  }
+
+  private static async fetchTemplatesPage(after?: number | null): Promise<{ data: DocusealApiTemplate[]; pagination?: { next?: number | null } }> {
+    if (!this.hasApiAccess()) {
+      throw new Error('Docuseal API access is not configured');
+    }
+
+    const url = new URL('/api/templates', this.getInternalUrl());
+    url.searchParams.set('limit', '100');
+    if (after) {
+      url.searchParams.set('after', String(after));
+    }
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.getApiKey()}`,
+      },
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      throw new Error(`Docuseal listTemplates failed (${response.status}): ${body}`);
+    }
+
+    return response.json();
+  }
+
+  static async listTemplates(): Promise<DocusealApiTemplate[]> {
+    const templates: DocusealApiTemplate[] = [];
+    let after: number | null = null;
+
+    do {
+      const page = await this.fetchTemplatesPage(after);
+      if (Array.isArray(page?.data)) {
+        templates.push(...page.data);
+      }
+      after = page?.pagination?.next ?? null;
+    } while (after);
+
+    return templates;
   }
 
   static async createSubmission(input: CreateSubmissionInput): Promise<any> {

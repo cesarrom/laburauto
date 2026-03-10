@@ -215,6 +215,38 @@ export const contractTemplates = pgTable('contract_templates', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+export const docusealTemplates = pgTable('docuseal_templates', {
+  id: serial('id').primaryKey(),
+  docusealTemplateId: text('docuseal_template_id').notNull(),
+  name: text('name').notNull(),
+  slug: text('slug'),
+  externalId: text('external_id'),
+  folderName: text('folder_name'),
+  previewImageUrl: text('preview_image_url'),
+  sharedLink: boolean('shared_link'),
+  matchesFilter: boolean('matches_filter').default(false),
+  stageCount: integer('stage_count'),
+  fieldCount: integer('field_count'),
+  submitterCount: integer('submitter_count'),
+  docusealCreatedAt: timestamp('docuseal_created_at'),
+  docusealUpdatedAt: timestamp('docuseal_updated_at'),
+  lastSyncedAt: timestamp('last_synced_at').defaultNow(),
+}, (table) => ({
+  docusealTemplateIdUnique: unique('docuseal_template_id_unique').on(table.docusealTemplateId),
+}));
+
+export const docusealActiveTemplates = pgTable('docuseal_active_templates', {
+  id: serial('id').primaryKey(),
+  contractType: text('contract_type', { enum: ['publisher_enrollment', 'rental_agreement'] }).notNull(),
+  templateId: integer('template_id').references(() => docusealTemplates.id).notNull(),
+  docusealTemplateId: text('docuseal_template_id').notNull(),
+  docusealTemplateName: text('docuseal_template_name'),
+  activatedBy: integer('activated_by').references(() => users.id),
+  activatedAt: timestamp('activated_at').defaultNow(),
+}, (table) => ({
+  contractTypeUnique: unique('docuseal_active_templates_contract_type_unique').on(table.contractType),
+}));
+
 export const contractInstances = pgTable('contract_instances', {
   id: serial('id').primaryKey(),
   templateId: integer('template_id').references(() => contractTemplates.id).notNull(),
@@ -348,6 +380,21 @@ export const contractInstancesRelations = relations(contractInstances, ({ one })
   template: one(contractTemplates, {
     fields: [contractInstances.templateId],
     references: [contractTemplates.id],
+  }),
+}));
+
+export const docusealTemplatesRelations = relations(docusealTemplates, ({ many }) => ({
+  activeSelections: many(docusealActiveTemplates),
+}));
+
+export const docusealActiveTemplatesRelations = relations(docusealActiveTemplates, ({ one }) => ({
+  template: one(docusealTemplates, {
+    fields: [docusealActiveTemplates.templateId],
+    references: [docusealTemplates.id],
+  }),
+  activatedByUser: one(users, {
+    fields: [docusealActiveTemplates.activatedBy],
+    references: [users.id],
   }),
 }));
 

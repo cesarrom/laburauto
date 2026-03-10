@@ -3,6 +3,7 @@ import { db } from '../db';
 import { vehicles, users, photoAudits, bookings } from '@laburauto/shared/schema';
 import { eq, desc } from 'drizzle-orm';
 import templatesRouter from './admin/templates';
+import docusealAdminRouter from './admin/docuseal';
 import { requireAuth, requireRole } from '../middleware/auth';
 
 const router = Router();
@@ -12,6 +13,7 @@ router.use(requireAuth, requireRole('admin'));
 
 // Mount admin sub-routes
 router.use('/templates', templatesRouter);
+router.use('/docuseal', docusealAdminRouter);
 
 // Admin: Evidence Kit (The "Botón de Demanda")
 router.get('/evidence-kit/:bookingId', async (req, res) => {
