@@ -123,17 +123,25 @@ export class DocusealService {
   }
 
   static async listTemplates(): Promise<DocusealApiTemplate[]> {
+    console.log('[DocusealService] listTemplates started');
     const templates: DocusealApiTemplate[] = [];
     let after: number | null = null;
+    let pageCount = 0;
 
     do {
+      pageCount++;
+      console.log(`[DocusealService] Fetching templates page ${pageCount}${after ? ` (after=${after})` : ''}`);
       const page = await this.fetchTemplatesPage(after);
       if (Array.isArray(page?.data)) {
+        console.log(`[DocusealService] Received ${page.data.length} templates in page ${pageCount}`);
         templates.push(...page.data);
+      } else {
+        console.warn(`[DocusealService] Page ${pageCount} returned no data array:`, page);
       }
       after = page?.pagination?.next ?? null;
     } while (after);
 
+    console.log(`[DocusealService] listTemplates finished. Total templates fetched: ${templates.length}`);
     return templates;
   }
 

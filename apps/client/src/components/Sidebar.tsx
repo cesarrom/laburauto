@@ -14,7 +14,8 @@ import {
   FileCheck,
   CreditCard,
   AlertCircle,
-  FileText
+  FileText,
+  ShieldCheck
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -40,6 +41,7 @@ export default function Sidebar() {
     { label: 'Revisión de autos', path: '/admin/vehicles', icon: List, show: user.role === 'admin' },
     { label: 'Disputas', path: '/admin/disputes', icon: AlertCircle, show: user.role === 'admin' },
     { label: 'Plantillas', path: '/admin/templates', icon: FileText, show: user.role === 'admin' },
+    { label: 'DocuSeal', path: '/admin/docuseal', icon: ShieldCheck, show: user.role === 'admin' },
   ];
 
   return (

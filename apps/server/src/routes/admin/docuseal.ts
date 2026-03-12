@@ -9,25 +9,29 @@ import {
 const router = Router();
 
 router.post('/sync', async (_req, res) => {
+  console.log('[AdminDocusealRoute] POST /sync triggered');
   try {
     const stats = await syncDocusealTemplates();
+    console.log('[AdminDocusealRoute] Sync success:', stats);
     res.json({
       ok: true,
       synced: stats.total,
       matchesFilter: stats.matchesFilter,
     });
   } catch (error: any) {
-    console.error('Docuseal sync failed:', error);
+    console.error('[AdminDocusealRoute] Sync failed:', error);
     res.status(500).json({ error: 'Failed to sync Docuseal templates', details: error?.message });
   }
 });
 
 router.get('/templates', async (_req, res) => {
+  console.log('[AdminDocusealRoute] GET /templates triggered');
   try {
     const templates = await listDocusealTemplatesWithStatus();
+    console.log(`[AdminDocusealRoute] Found ${templates.length} templates in DB`);
     res.json(templates);
   } catch (error: any) {
-    console.error('Docuseal template list failed:', error);
+    console.error('[AdminDocusealRoute] Template list failed:', error);
     res.status(500).json({ error: 'Failed to load Docuseal templates', details: error?.message });
   }
 });

@@ -45,29 +45,43 @@ const buildInsertPayload = (template: any, regex: RegExp | null, syncedAt: Date)
 };
 
 export async function syncDocusealTemplates(): Promise<SyncResult> {
+  console.log('[docusealTemplateService] syncDocusealTemplates started');
   if (!DocusealService.hasApiAccess()) {
+    console.error('[docusealTemplateService] Docuseal API access NOT configured');
     throw new Error('Docuseal API access is not configured');
   }
 
   const templates = await DocusealService.listTemplates();
+  console.log(`[docusealTemplateService] Fetched ${templates.length} templates from API`);
+  
   const regex = DocusealService.getTemplateNameRegex();
+  console.log(`[docusealTemplateService] Using name regex: ${regex}`);
+  
   const syncedAt = new Date();
+  let syncCount = 0;
 
   for (const template of templates) {
     const insertPayload = buildInsertPayload(template, regex, syncedAt);
     const { docusealTemplateId, ...updatePayload } = insertPayload;
 
-    await db.insert(docusealTemplates)
-      .values(insertPayload)
-      .onConflictDoUpdate({
-        target: docusealTemplates.docusealTemplateId,
-        set: updatePayload,
-      });
+    try {
+      await db.insert(docusealTemplates)
+        .values(insertPayload)
+        .onConflictDoUpdate({
+          target: docusealTemplates.docusealTemplateId,
+          set: updatePayload,
+        });
+      syncCount++;
+    } catch (err) {
+      console.error(`[docusealTemplateService] Failed to sync template ${template.name} (ID: ${template.id}):`, err);
+    }
   }
 
   const matchesFilter = regex
     ? templates.filter((template) => regex.test(template.name)).length
     : templates.length;
+
+  console.log(`[docusealTemplateService] Sync finished. Total: ${templates.length}, Synced to DB: ${syncCount}, Matches filter: ${matchesFilter}`);
 
   return {
     total: templates.length,
