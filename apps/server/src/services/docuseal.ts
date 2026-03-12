@@ -100,22 +100,28 @@ export class DocusealService {
       throw new Error('Docuseal API access is not configured');
     }
 
-    const url = new URL('/api/templates', this.getInternalUrl());
+    const apiKey = this.getApiKey();
+    const internalUrl = this.getInternalUrl();
+    const url = new URL('/api/templates', internalUrl);
     url.searchParams.set('limit', '100');
     if (after) {
       url.searchParams.set('after', String(after));
     }
 
+    console.log(`[DocusealService] Fetching templates: ${url.toString()}`);
+    console.log(`[DocusealService] API Key (first 4 chars): ${apiKey?.substring(0, 4)}... (length: ${apiKey?.length})`);
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.getApiKey()}`,
+        'X-Auth-Token': apiKey || '',
       },
     });
 
     if (!response.ok) {
       const body = await response.text();
+      console.error(`[DocusealService] Response error: status=${response.status}, body=${body}`);
       throw new Error(`Docuseal listTemplates failed (${response.status}): ${body}`);
     }
 
@@ -165,7 +171,7 @@ export class DocusealService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.getApiKey()}`,
+        'X-Auth-Token': this.getApiKey() || '',
       },
       body: JSON.stringify(payload),
     });
