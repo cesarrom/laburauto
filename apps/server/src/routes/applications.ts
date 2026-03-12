@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { rentalApplications, notifications, vehicles, bookings, renterDocuments, shifts, contractTemplates, vehicleModels, users } from '@laburauto/shared/schema';
-import { initializeContractInstance, ensureDocusealSubmissionForInstance } from './contracts';
+import { rentalApplications, notifications, vehicles, bookings, renterDocuments, shifts, vehicleModels, users } from '@laburauto/shared/schema';
+import { ensureDocusealSubmissionForInstance } from './contracts';
 
 
 import { eq, and, inArray } from 'drizzle-orm';
@@ -284,98 +284,64 @@ router.put('/:id/approve', requireAuth, requireRole('publisher'), async (req, re
       console.log('Successfully created booking:', booking.id, 'for application:', application.id);
     }
 
-
-    // Find latest rental agreement template
-    const template = await (db).query.contractTemplates.findFirst({
-      where: (table: any, { eq }) => eq(table.type, 'rental_agreement'),
-      orderBy: (table: any, { desc }) => [desc(table.id)],
+    const vehicle = await (db).query.vehicles.findFirst({
+      where: (table, { eq }) => eq(table.id, application.vehicleId),
     });
 
-    let contractInstance = null;
-    if (template) {
-      const vehicle = await (db).query.vehicles.findFirst({
-        where: (table, { eq }) => eq(table.id, application.vehicleId),
-      });
-
-      if (!vehicle) {
-        console.error('DEBUG: Vehicle not found for application.vehicleId:', application.vehicleId);
-        return res.status(404).json({ error: 'Vehicle not found' });
-      } else {
-        console.log('DEBUG: Found vehicle:', vehicle.id, 'with publisherId:', vehicle.publisherId);
-      }
-
-      const [publisherUser, renterUser] = await Promise.all([
-        db.query.users.findFirst({ where: eq(users.id, vehicle.publisherId) }),
-        db.query.users.findFirst({ where: eq(users.id, application.renterId) })
-      ]);
-
-      console.log('DEBUG: Publisher found:', !!publisherUser, 'Renter found:', !!renterUser);
-
-      const vehicleModel = await db.query.vehicleModels.findFirst({
-        where: (table, { eq }) => eq(table.id, vehicle.vehicleModelId),
-      });
-
-      console.log('DEBUG: VehicleModel found:', !!vehicleModel);
-
-      const vehicleDescription = vehicle && vehicleModel
-        ? `${vehicleModel.brandName} ${vehicleModel.modelName} (${vehicle.year})`
-        : 'N/A';
-
-      // Use initializeContractInstance helper for Stage 1 auto-fulfillment  
-      const instance = await initializeContractInstance(
-        template.id,
-        {
-          publisher: publisherUser ? { name: publisherUser.name || 'Publisher', email: publisherUser.email } : undefined,
-          renter: renterUser ? { name: renterUser.name || 'Renter', email: renterUser.email } : undefined,
-          vehicle: {
-            make: vehicleModel?.brandName || 'Unknown',
-            model: vehicleModel?.modelName || 'Unknown',
-            plate: vehicle?.plate || 'N/A'
-          },
-          booking: { id: booking.id },
-          contractId: 0 // Will be updated
-        },
-        vehicle ? vehicle.publisherId : undefined,
-        application.renterId,
-        booking.id
-      );
-
-      contractInstance = (await ensureDocusealSubmissionForInstance(instance.id, req.user!.id)) || instance;
-      // Link contract back to booking
-      await (db).update(bookings).set({ contractId: instance.id }).where(eq(bookings.id, booking.id));
-
-      // Send Email Invitation to Publisher
-      if (publisherUser) {
-        try {
-          const signingUrl = contractInstance.docusealPublisherSignUrl || await MagicLinkService.createLink(
-            publisherUser.id,
-            `/portal/contracts/${instance.id}`,
-            req
-          );
-
-          await EmailService.sendSigningInvitation({
-            email: publisherUser.email,
-            magicLink: signingUrl,
-            role: 'publisher',
-            contractId: instance.id,
-            bookingId: booking.id,
-          });
-          console.log(`Sent signing invitation to publisher ${publisherUser.email}`);
-        } catch (emailErr) {
-          console.error('Failed to send signing invitation:', emailErr);
-          // Don't block response
-        }
-      }
-
-      // Get the updated booking to return it
-      const [updatedBooking] = await (db).select().from(bookings).where(eq(bookings.id, booking.id));
-      res.json({ application: updatedApplication, booking: updatedBooking, contractInstance: instance });
-      return;
+    if (!vehicle) {
+      console.error('DEBUG: Vehicle not found for application.vehicleId:', application.vehicleId);
+      return res.status(404).json({ error: 'Vehicle not found' });
     }
 
-    // Calculate time left message
-    const hoursLeft = Math.floor((paymentDeadline.getTime() - new Date().getTime()) / (1000 * 60 * 60));
+    const [publisherUser, renterUser] = await Promise.all([
+      db.query.users.findFirst({ where: eq(users.id, vehicle.publisherId) }),
+      db.query.users.findFirst({ where: eq(users.id, application.renterId) })
+    ]);
 
+    // Create contract instance using pure Docuseal flow
+    const [instance] = await db.insert(contractInstances).values({
+      contractType: 'rental_agreement',
+      publisherId: vehicle.publisherId,
+      renterId: application.renterId,
+      bookingId: booking.id,
+      status: 'pending',
+      auditLog: [{
+        stage: 'created',
+        userId: req.user!.id,
+        timestamp: new Date().toISOString(),
+        action: 'created'
+      }]
+    }).returning();
+
+    const contractInstance = (await ensureDocusealSubmissionForInstance(instance.id, req.user!.id)) || instance;
+    
+    // Link contract back to booking
+    await (db).update(bookings).set({ contractId: instance.id }).where(eq(bookings.id, booking.id));
+
+    // Send Email Invitation to Publisher
+    if (publisherUser) {
+      try {
+        const signingUrl = contractInstance.docusealPublisherSignUrl || await MagicLinkService.createLink(
+          publisherUser.id,
+          `/portal/contracts/${instance.id}`,
+          req
+        );
+
+        await EmailService.sendSigningInvitation({
+          email: publisherUser.email,
+          magicLink: signingUrl,
+          role: 'publisher',
+          contractId: instance.id,
+          bookingId: booking.id,
+        });
+      } catch (emailErr) {
+        console.error('Failed to send signing invitation:', emailErr);
+      }
+    }
+
+    // Get the updated booking to return it
+    const [updatedBooking] = await (db).select().from(bookings).where(eq(bookings.id, booking.id));
+    
     // Notify renter
     await (db).insert(notifications).values({
       userId: application.renterId,
@@ -385,7 +351,7 @@ router.put('/:id/approve', requireAuth, requireRole('publisher'), async (req, re
     });
 
     AuditService.log(null, 'application.approved', 'application', updatedApplication.id, { bookingId: booking.id }, req);
-    res.json({ application: updatedApplication, booking, contractInstance });
+    res.json({ application: updatedApplication, booking: updatedBooking, contractInstance: instance });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });

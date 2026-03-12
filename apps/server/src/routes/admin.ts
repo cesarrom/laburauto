@@ -1,8 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { vehicles, users, photoAudits, bookings } from '@laburauto/shared/schema';
+import { vehicles, users, photoAudits, bookings, contractInstances } from '@laburauto/shared/schema';
 import { eq, desc } from 'drizzle-orm';
-import templatesRouter from './admin/templates';
 import docusealAdminRouter from './admin/docuseal';
 import { requireAuth, requireRole } from '../middleware/auth';
 
@@ -12,7 +11,6 @@ const router = Router();
 router.use(requireAuth, requireRole('admin'));
 
 // Mount admin sub-routes
-router.use('/templates', templatesRouter);
 router.use('/docuseal', docusealAdminRouter);
 
 // Admin: Evidence Kit (The "Botón de Demanda")
@@ -23,47 +21,43 @@ router.get('/evidence-kit/:bookingId', async (req, res) => {
     const data = await db.query.bookings.findFirst({
       where: eq(bookings.id, bookingId),
       with: {
-        driver: {
-          with: {
-            // Need to ensure relations are defined in schema.ts
-          }
-        },
+        driver: true,
         vehicle: true,
         photoAudits: true,
         contract: true,
       }
     });
 
-    if (data?.contract) {
-      console.log('DEBUG: EvidenceKit bookingId:', bookingId, 'contractId:', data.contract.id, 'status:', data.contract.status);
-    } else {
-      console.log('DEBUG: EvidenceKit bookingId:', bookingId, 'NO CONTRACT FOUND');
-    }
-
     if (!data) return res.status(404).json({ error: 'Evidence kit data not found' });
 
     // Consolidate evidence kit
     const kit = {
-      bundleVersion: "1.0",
+      bundleVersion: "1.1",
       timestamp: new Date().toISOString(),
       legalIdentity: {
         renterName: data.driver.name,
         renterEmail: data.driver.email,
-        verifiedKyc: data.driver.kycData, // Assuming JSON
+        verifiedKyc: data.driver.kycData,
       },
-      contract: data.contract,
+      contract: data.contract ? {
+        id: data.contract.id,
+        status: data.contract.status,
+        type: data.contract.contractType,
+        signedAt: data.contract.signedAt,
+        docusealSubmissionId: data.contract.docusealSubmissionId,
+        pdfUrl: data.contract.finalPdfUrl ? getSignedUrl(data.contract.finalPdfUrl) : null,
+      } : null,
       auditHistory: data.photoAudits,
-      state: data.status, // booking status
-      contractStatus: data.contract?.status, // debug info
-      contractId: data.contract?.id, // debug info
+      state: data.status,
       payments: {
-        proofUrl: data.paymentProofUrl,
+        proofUrl: data.paymentProofUrl ? getSignedUrl(data.paymentProofUrl) : null,
         confirmedAt: data.paymentConfirmedAt
       }
     };
 
     res.json(kit);
   } catch (err) {
+    console.error('Evidence kit error:', err);
     res.status(500).json({ error: 'Failed to generate evidence kit' });
   }
 });

@@ -174,16 +174,7 @@ export const completeOnboardingSchema = z.object({
 
 export const resendEnrollmentSchema = z.object({});
 
-// Contract Template & Signing schemas
-export const createTemplateSchema = z.object({
-  name: z.string().min(3),
-  type: z.enum(['rental_agreement', 'publisher_enrollment']),
-  pdfUrl: z.string().min(1),
-  fields: z.any(),
-  stages: z.any(),
-  variableSchema: z.any().optional(),
-});
-
+// Contract Instance schemas
 export const signContractSchema = z.object({
   finalPdfUrl: z.string().optional(),
   auditEvent: z.object({
@@ -195,5 +186,4 @@ export const signContractSchema = z.object({
   fields: z.any().optional(),
 });
 
-export const selectContractTemplateSchema = createSelectSchema(schema.contractTemplates);
 export const selectContractInstanceSchema = createSelectSchema(schema.contractInstances);

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { users, contractTemplates, contractInstances } from '../../db/schema';
+import { users, contractInstances } from '@laburauto/shared/schema';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
@@ -10,10 +10,7 @@ import { MagicLinkService } from '../services/magicLinkService';
 import { EmailService } from '../services/emailService';
 import { validateRequest } from '../middleware/validate';
 import { registerSchema, loginSchema, completeOnboardingSchema } from '@laburauto/shared/zod';
-import { VariableContext } from '../services/contractVariableService';
-import { uploadBuffer } from '../services/bytescale';
-import { PdfService } from '../services/pdfService';
-import { ContractVariableService } from '../services/contractVariableService';
+import { ensureDocusealSubmissionForInstance } from './contracts';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
@@ -460,82 +457,55 @@ router.post('/complete-onboarding', validateRequest({ body: completeOnboardingSc
     if (role === 'publisher') {
       onboardingCompleted = false;
 
-      // Find Template
-      const template = await db.query.contractTemplates.findFirst({
-        where: eq(contractTemplates.type, 'publisher_enrollment')
-      });
+      let instance;
 
-      if (template) {
-        let instance;
+      // Check if user already has a pending enrollment contract
+      if (currentUser.enrollmentContractId) {
+        const existingInstance = await db.query.contractInstances.findFirst({
+          where: eq(contractInstances.id, currentUser.enrollmentContractId)
+        });
 
-        // Check if user already has a pending enrollment contract
-        if (currentUser.enrollmentContractId) {
-          const existingInstance = await db.query.contractInstances.findFirst({
-            where: eq(contractInstances.id, currentUser.enrollmentContractId)
-          });
-
-          // Reuse if pending
-          if (existingInstance && existingInstance.status === 'pending') {
-            instance = existingInstance;
-            enrollmentContractId = instance.id;
-          }
-        }
-
-        // Create new instance if none exists or previous was not pending
-        if (!instance) {
-          // Build variable context for enrollment
-          const context: VariableContext = {
-            publisher: { name: currentUser.name || '', email: currentUser.email },
-            contractId: 0
-          };
-
-          //Resolve variables in template fields
-          const resolvedFields = ContractVariableService.processFields(template.fields, context);
-
-          // Compile PDF with resolved variables (Stage 1 - System)
-          const pdfBuffer = await PdfService.compilePdf(template.pdfUrl, resolvedFields);
-          const stage1PdfUrl = await uploadBuffer(
-            pdfBuffer,
-            'application/pdf',
-            `contract_${Date.now()}_stage1.pdf`,
-            'contracts'
-          );
-
-          // Create instance with Stage 1 already completed
-          [instance] = await db.insert(contractInstances).values({
-            templateId: template.id,
-            publisherId: userId,
-            status: 'pending',
-            finalPdfUrl: stage1PdfUrl,
-            variableValues: context as any,
-            stage1CompletedAt: new Date(),
-            stage1CompletedBy: null, // System completion
-            auditLog: [{
-              stage: 'stage-1-system',
-              userId: null,
-              timestamp: new Date().toISOString(),
-              action: 'variables_resolved'
-            }]
-          }).returning();
-
+        // Reuse if pending
+        if (existingInstance && existingInstance.status === 'pending') {
+          instance = existingInstance;
           enrollmentContractId = instance.id;
         }
-
-        // Create Magic Link for Signing
-        const magicLink = await MagicLinkService.createLink(
-          userId,
-          `/portal/contracts/${instance.id}`,
-          req
-        );
-
-        // Send Email
-        await EmailService.sendSigningInvitation({
-          email: currentUser.email,
-          magicLink,
-          role: 'publisher',
-          contractId: instance.id
-        });
       }
+
+      // Create new instance if none exists or previous was not pending
+      if (!instance) {
+        [instance] = await db.insert(contractInstances).values({
+          contractType: 'publisher_enrollment',
+          publisherId: userId,
+          status: 'pending',
+          auditLog: [{
+            stage: 'created',
+            userId: null,
+            timestamp: new Date().toISOString(),
+            action: 'created'
+          }]
+        }).returning();
+
+        enrollmentContractId = instance.id;
+      }
+
+      // Ensure Docuseal submission exists and send invitation
+      await ensureDocusealSubmissionForInstance(instance.id, null);
+
+      // Create Magic Link for Signing (fallback if Docuseal email fails or for direct portal access)
+      const magicLink = await MagicLinkService.createLink(
+        userId,
+        `/portal/contracts/${instance.id}`,
+        req
+      );
+
+      // Send Email
+      await EmailService.sendSigningInvitation({
+        email: currentUser.email,
+        magicLink,
+        role: 'publisher',
+        contractId: instance.id
+      });
     }
 
     const [updatedUser] = await db

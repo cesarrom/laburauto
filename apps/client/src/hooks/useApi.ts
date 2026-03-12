@@ -2,9 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api, { validatedRequest } from '../lib/api';
 import {
   authResponseSchema,
-  selectVehicleSchema,
-  selectContractTemplateSchema,
-  selectContractInstanceSchema
+  selectVehicleSchema
 } from '@laburauto/shared/zod';
 
 // File Upload Hook
@@ -228,28 +226,13 @@ export function usePublisherDocuments(publisherId?: number) {
   });
 }
 
-export function useContractTemplates(type?: string, options?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: ['contractTemplates', type],
-    queryFn: async () => {
-      return validatedRequest(
-        () => api.get(`/admin/templates${type ? `?type=${type}` : ''}`),
-        selectContractTemplateSchema.array()
-      );
-    },
-    enabled: options?.enabled,
-  });
-}
-
 export function useContractInstance(instanceId?: number) {
   return useQuery({
     queryKey: ['contractInstance', instanceId],
     queryFn: async () => {
       if (!instanceId) return null;
-      return validatedRequest(
-        () => api.get(`/contracts/instances/${instanceId}`),
-        selectContractInstanceSchema
-      );
+      const res = await api.get(`/contracts/instances/${instanceId}`);
+      return res.data;
     },
     enabled: !!instanceId,
   });
@@ -260,10 +243,11 @@ export function useCreateContractInstance() {
 
   return useMutation({
     mutationFn: async (data: {
-      templateId: number;
+      contractType: string;
       bookingId?: number;
       publisherId?: number;
       renterId?: number;
+      userId?: number;
     }) => {
       const response = await api.post('/contracts/instances', data);
       return response.data;

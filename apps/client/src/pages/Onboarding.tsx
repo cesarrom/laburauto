@@ -1,14 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
-import { Car, User as UserIcon, FileText, ChevronRight, ChevronLeft, Shield, Star, CreditCard, PenTool, Mail } from 'lucide-react';
+import { Car, User as UserIcon, FileText, ChevronRight, ChevronLeft, Shield, Star, CreditCard, Mail, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useCompleteOnboarding, useFileUpload, useSubmitRenterDocuments, useContractTemplates, useCreateContractInstance, useContractInstance, useResendEnrollment } from '../hooks/useApi';
-import api from '../lib/api';
+import { useCompleteOnboarding, useFileUpload, useSubmitRenterDocuments, useCreateContractInstance, useResendEnrollment } from '../hooks/useApi';
 import { kycSchema, type KYCData, renterDocumentsSchema, type RenterDocumentsData } from '../schemas/validation';
 import IconRadioCard from '../components/IconRadioCard';
-import { DocumentSigner } from '../components/DocumentSigner';
 
 export default function Onboarding() {
   const { user, updateUser, login, refreshSession } = useAuth();
@@ -37,18 +36,10 @@ export default function Onboarding() {
 
   const handleResendEmail = () => {
     resendMutation.mutate(undefined, {
-      onSuccess: () => alert('Enrollment email resent successfully!'),
-      onError: (err: any) => alert(err.response?.data?.error || 'Failed to resend email'),
+      onSuccess: () => alert('¡Email de inscripción reenviado con éxito!'),
+      onError: (err: any) => alert(err.response?.data?.error || 'Error al reenviar el email'),
     });
   };
-
-  const { data: templates } = useContractTemplates('publisher_enrollment', {
-    enabled: selectedRole === 'publisher'
-  });
-  const [contractInstanceId, setContractInstanceId] = useState<number | null>(null);
-  const { data: contractInstance } = useContractInstance(contractInstanceId || undefined);
-  const [pdfFile, setPdfFile] = useState<Uint8Array | null>(null);
-  const [isSigning, setIsSigning] = useState(false);
 
   const {
     register: registerKYC,
@@ -94,64 +85,20 @@ export default function Onboarding() {
   };
 
   const handleStartPublisherEnrollment = async () => {
-    // We need to wait for templates if they are loading?
-    // This function is async. We can check if templates are ready.
-    // However, react-query is async. The 'Continue' button in Step 2 triggers this.
-    // If selectedRole is publisher, the query starts.
-    // We might need to ensure templates are present.
-
-    // Simplification: Proceed to step 3 and show loading there if needed?
-    // The previous logic checked templates immediately.
-    // Let's rely on the user clicking "Continue" which gives time for the query.
-    // If templates are not ready, we should show loading state or wait.
-
-    // However, the requested change is to prevent FETCHING before role is set.
-    // We did that with `enabled: selectedRole === 'publisher'`.
-    // Now we need to make sure we don't crash if they are not loaded yet.
     if (!user) return;
 
-    // If templates are loading, we can't check them yet.
-    // But since this is called on "Continue", likely the fetch started when they clicked the radio button?
-    // No, `handleRoleSelect` is called by "Continue" button as well in the current code?
-    // Let's check line 326: onClick={() => selectedRole && handleRoleSelect(selectedRole)}
-    // And line 302: onChange={(value) => setSelectedRole(...)}
-    // So picking the radio button sets state -> query enabled -> starts fetching.
-    // Clicking "Continue" calls `handleRoleSelect` -> `handleStartPublisherEnrollment`.
-
-    if (!templates || templates.length === 0) {
-      // Fallback if no enrollment contract exists or not loaded yet
-      if (!templates) {
-        // Could be loading.
-        // Let's create a small delay or retry? Or mostly likely undefined means loading.
-        // For now, let's just complete without contract if no templates found after a wait or immediately if we assume they load fast.
-        // Better safe:
-        console.warn('Templates not ready or empty, proceeding without enrollment contract.');
-        handleCompleteOnboarding('publisher');
-        return;
-      }
-
-      handleCompleteOnboarding('publisher');
-      return;
-    }
-
     try {
-      const templateId = templates[0].id; // Use first enrollment template
-      const instance = await createContractMutation.mutateAsync({
-        templateId,
+      await createContractMutation.mutateAsync({
+        contractType: 'publisher_enrollment',
         publisherId: user.id
       });
 
-      setContractInstanceId(instance.id);
-
-      // Fetch the PDF using the api client (which handles JWT)
-      const pdfUrl = templates[0].pdfUrl;
-      const response = await api.get(pdfUrl, { responseType: 'arraybuffer' });
-      setPdfFile(new Uint8Array(response.data));
-
-      setStep(3);
-      setIsSigning(true);
+      // After creating the instance, we complete onboarding (setting role and KYC)
+      // and then move to step 4 which tells them to check email.
+      await handleCompleteOnboarding('publisher');
     } catch (error) {
       console.error('Failed to start enrollment:', error);
+      // Fallback: still complete onboarding so they can try again from dashboard if needed
       handleCompleteOnboarding('publisher');
     }
   };
@@ -549,65 +496,10 @@ export default function Onboarding() {
           )}
 
           {step === 3 && selectedRole === 'publisher' && (
-            <div className="space-y-6">
-              <div className="text-center mb-6">
-                <div className="inline-flex p-3 bg-indigo-100 rounded-full mb-4">
-                  <PenTool className="h-8 w-8 text-indigo-600" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900">Partnership Agreement</h2>
-                <p className="text-gray-500 mt-2">
-                  Please review and sign the publisher enrollment contract to proceed.
-                </p>
-              </div>
-
-              {pdfFile && contractInstance ? (
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-600 bg-gray-50 p-4 rounded-lg border border-gray-200 uppercase font-bold text-center">
-                    Click the button below to open the legal document and sign.
-                  </p>
-                  <button
-                    onClick={() => setIsSigning(true)}
-                    className="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg flex items-center justify-center gap-2"
-                  >
-                    <PenTool size={20} />
-                    Open and Sign Contract
-                  </button>
-                </div>
-              ) : (
-                <div className="py-20 text-center text-gray-400 animate-pulse">
-                  Preparing your contract...
-                </div>
-              )}
-
-              {isSigning && pdfFile && contractInstance && (
-                <DocumentSigner
-                  mode="signer"
-                  activeStageId="st_signer_1" // Assuming first signer stage has this ID
-                  initialData={{
-                    id: contractInstance.id.toString(),
-                    pdfFile: pdfFile as any, // Cast to any to bypass strict type check for now
-                    fields: (contractInstance as any).template.fields,
-                    stages: (contractInstance as any).template.stages,
-                  }}
-                  onFinish={async () => {
-                    // Logic to save individual signatures could go here
-                    // For now, we'll mark the contract as signed on the backend
-                    await handleCompleteOnboarding('publisher');
-                    setIsSigning(false);
-                  }}
-                  onClose={() => setIsSigning(false)}
-                />
-              )}
-
-              <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200 transition flex items-center justify-center gap-2"
-                >
-                  <ChevronLeft size={20} />
-                  Back
-                </button>
+            <div className="text-center py-12">
+              <div className="flex flex-col items-center justify-center py-12">
+                <Loader2 className="w-12 h-12 animate-spin text-brand-500 mb-4" />
+                <p className="text-text-muted font-medium">Preparando tu contrato de inscripción...</p>
               </div>
             </div>
           )}

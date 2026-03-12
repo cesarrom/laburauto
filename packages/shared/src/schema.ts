@@ -1,6 +1,5 @@
 import { pgTable, serial, text, integer, timestamp, boolean, doublePrecision, uuid, jsonb, unique } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import type { Field, Stage } from './signer';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -204,17 +203,6 @@ export const publisherDocuments = pgTable('publisher_documents', {
 }));
 
 
-export const contractTemplates = pgTable('contract_templates', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  type: text('type', { enum: ['publisher_enrollment', 'rental_agreement'] }).notNull(),
-  pdfUrl: text('pdf_url').notNull(),
-  fields: jsonb('fields').$type<Field[]>().notNull(), // Field definitions for the SDK
-  stages: jsonb('stages').$type<Stage[]>().notNull(), // Stage definitions for the SDK
-  variableSchema: jsonb('variable_schema'), // Available variables for this template type
-  createdAt: timestamp('created_at').defaultNow(),
-});
-
 export const docusealTemplates = pgTable('docuseal_templates', {
   id: serial('id').primaryKey(),
   docusealTemplateId: text('docuseal_template_id').notNull(),
@@ -249,7 +237,7 @@ export const docusealActiveTemplates = pgTable('docuseal_active_templates', {
 
 export const contractInstances = pgTable('contract_instances', {
   id: serial('id').primaryKey(),
-  templateId: integer('template_id').references(() => contractTemplates.id).notNull(),
+  contractType: text('contract_type', { enum: ['publisher_enrollment', 'rental_agreement'] }).notNull(),
   status: text('status', { enum: ['pending', 'signed', 'void'] }).default('pending'),
   docusealSubmissionId: text('docuseal_submission_id'),
   docusealPublisherSignUrl: text('docuseal_publisher_sign_url'),
@@ -260,12 +248,6 @@ export const contractInstances = pgTable('contract_instances', {
   publisherId: integer('publisher_id').references(() => users.id),
   renterId: integer('renter_id').references(() => users.id),
   bookingId: integer('booking_id').references(() => bookings.id),
-  stage1CompletedAt: timestamp('stage_1_completed_at'),
-  stage1CompletedBy: integer('stage_1_completed_by').references(() => users.id),
-  stage2CompletedAt: timestamp('stage_2_completed_at'),
-  stage2CompletedBy: integer('stage_2_completed_by').references(() => users.id),
-  stage3CompletedAt: timestamp('stage_3_completed_at'),
-  stage3CompletedBy: integer('stage_3_completed_by').references(() => users.id),
   emailSentAt: timestamp('email_sent_at'),
   emailOpenedAt: timestamp('email_opened_at'),
   createdAt: timestamp('created_at').defaultNow(),
@@ -370,17 +352,6 @@ export const bookingsRelations = relations(bookings, ({ one, many }) => ({
   }),
   ratings: many(ratings),
   photoAudits: many(photoAudits),
-}));
-
-export const contractTemplatesRelations = relations(contractTemplates, ({ many }) => ({
-  instances: many(contractInstances),
-}));
-
-export const contractInstancesRelations = relations(contractInstances, ({ one }) => ({
-  template: one(contractTemplates, {
-    fields: [contractInstances.templateId],
-    references: [contractTemplates.id],
-  }),
 }));
 
 export const docusealTemplatesRelations = relations(docusealTemplates, ({ many }) => ({

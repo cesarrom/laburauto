@@ -78,41 +78,46 @@ export default function AdminDocusealTemplates() {
 
   if (isLoading) {
     return (
-      <div className="rounded-[32px] border border-border bg-surface p-8 shadow-soft animate-pulse text-center">
-        <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Conectando con DocuSeal</p>
-        <p className="mt-2 text-2xl font-display text-text">Cargando catálogo…</p>
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="rounded-[32px] border border-border bg-surface p-8 shadow-soft animate-pulse text-center">
+          <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Conectando con DocuSeal</p>
+          <p className="mt-2 text-2xl font-display text-text">Cargando catálogo…</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-[32px] border border-red-200 bg-red-50 p-8 text-center text-red-600">
-        <p className="font-semibold">Error al cargar plantillas de DocuSeal</p>
-        <p className="text-sm mt-1">{(error as any).response?.data?.error || (error as any).message}</p>
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="rounded-[32px] border border-red-200 bg-red-50 p-8 text-center text-red-600">
+          <p className="font-semibold">Error al cargar plantillas de DocuSeal</p>
+          <p className="text-sm mt-1">{(error as any).response?.data?.error || (error as any).message}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface p-6 rounded-[32px] border border-border shadow-soft">
-        <div className="space-y-1">
-          <h2 className="text-2xl font-display">Catálogo DocuSeal</h2>
-          <p className="text-text-muted text-sm">Sincronizá y activá las plantillas reales que viven en tu instancia de DocuSeal.</p>
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8 text-text">
+      <header className="rounded-[32px] border border-border bg-surface p-6 md:p-10 shadow-soft flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-3">
+          <p className="text-xs uppercase tracking-[0.4em] text-text-muted">Backoffice · Plantillas legales</p>
+          <h1 className="text-3xl md:text-4xl font-display">Gestioná contratos directamente desde DocuSeal.</h1>
+          <p className="text-text-muted max-w-3xl">Sincronizá y activá las plantillas reales que viven en tu instancia de DocuSeal para onboarding o acuerdos de alquiler.</p>
         </div>
         <button
           onClick={() => syncMutation.mutate()}
           disabled={syncing}
           className={clsx(
-            "inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-semibold shadow-lift transition",
+            "inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-semibold shadow-lift transition shrink-0",
             syncing ? "bg-text-muted cursor-not-allowed" : "bg-brand-500 hover:bg-brand-600 text-white"
           )}
         >
           <RefreshCw size={18} className={clsx(syncing && "animate-spin")} />
           {syncing ? 'Sincronizando...' : 'Sincronizar ahora'}
         </button>
-      </div>
+      </header>
 
       <div className="grid grid-cols-1 gap-4">
         {templates?.length === 0 ? (

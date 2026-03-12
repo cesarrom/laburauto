@@ -15,7 +15,6 @@ import PublisherApplications from './pages/PublisherApplications';
 import Subscription from './pages/Subscription';
 import AdminVehicleReview from './pages/admin/AdminVehicleReview';
 import AdminDisputes from './pages/admin/AdminDisputes';
-import AdminContractTemplates from './pages/admin/AdminContractTemplates';
 import AdminDocusealTemplates from './pages/admin/AdminDocusealTemplates';
 import { useNotificationPolling } from './hooks/useNotificationPolling';
 import { useAuth } from './context/AuthContext';
@@ -80,8 +79,7 @@ function AppContent() {
           <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
           <Route path="/admin/vehicles" element={<PrivateRoute><AdminVehicleReview /></PrivateRoute>} />
           <Route path="/admin/disputes" element={<PrivateRoute><AdminDisputes /></PrivateRoute>} />
-          <Route path="/admin/templates" element={<PrivateRoute><AdminContractTemplates /></PrivateRoute>} />
-          <Route path="/admin/docuseal" element={<PrivateRoute><AdminDocusealTemplates /></PrivateRoute>} />
+          <Route path="/admin/templates" element={<PrivateRoute><AdminDocusealTemplates /></PrivateRoute>} />
           <Route path="/magic-login" element={<MagicLogin />} />
           <Route path="/sso/callback" element={<SsoCallback />} />
           <Route path="/portal/contracts/:id" element={<PrivateRoute><ContractSignerPage /></PrivateRoute>} />
