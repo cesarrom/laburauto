@@ -156,6 +156,10 @@ router.post('/instances', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'contractType is required' });
     }
 
+    // Role check: if we are creating an enrollment contract, the user might not have a role yet
+    const userRole = req.user?.role;
+    const isEnrollment = contractType === 'publisher_enrollment';
+
     let finalPublisherId = publisherId;
     let finalRenterId = userId;
     let booking;
@@ -169,12 +173,19 @@ router.post('/instances', requireAuth, async (req, res) => {
       });
 
       if (booking) {
-        if (req.user!.role !== 'admin' && booking.vehicle.publisherId !== req.user!.id) {
+        if (userRole !== 'admin' && booking.vehicle.publisherId !== req.user!.id) {
           return res.status(403).json({ error: 'Only the booking publisher or admin can create this contract instance' });
         }
         finalPublisherId = booking.vehicle.publisherId;
         finalRenterId = booking.driverId;
       }
+    } else if (isEnrollment) {
+      // For enrollment, the actor must be the user being enrolled or an admin
+      if (userRole !== 'admin' && userId !== req.user!.id) {
+        return res.status(403).json({ error: 'Not authorized to create enrollment for another user' });
+      }
+      finalPublisherId = userId;
+      finalRenterId = null;
     }
 
     // Create instance

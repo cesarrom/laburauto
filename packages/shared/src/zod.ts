@@ -15,7 +15,7 @@ export const safeUserSchema = z.object({
   id: z.number(),
   name: z.string().nullable(),
   email: z.string().email(),
-  role: z.enum(['admin', 'publisher', 'driver']),
+  role: z.enum(['admin', 'publisher', 'driver']).nullable(),
   onboardingCompleted: z.boolean(),
   enrollmentContractId: z.number().nullable().optional(),
 });

@@ -448,6 +448,11 @@ router.post('/complete-onboarding', validateRequest({ body: completeOnboardingSc
     const [currentUser] = await db.select().from(users).where(eq(users.id, userId));
     if (!currentUser) return res.status(404).json({ error: 'User not found' });
 
+    // Security check: ensure the user can only complete their own onboarding or is an admin
+    if (req.user?.role !== 'admin' && req.user?.id !== userId) {
+      return res.status(403).json({ error: 'Not authorized to complete onboarding for another user' });
+    }
+
     parsedKycData.fullName = currentUser.name;
     const finalKycData = JSON.stringify(parsedKycData);
 
