@@ -1,8 +1,6 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { contractInstances, bookings, users, notifications } from '@laburauto/shared/schema';
-import { EmailService } from '../services/emailService';
-import { AuditService } from '../services/auditService';
+import { contractInstances, bookings, users } from '@laburauto/shared/schema';
 import { getSignedUrl } from '../services/bytescale';
 import { MagicLinkService } from '../services/magicLinkService';
 import { eq } from 'drizzle-orm';
@@ -31,6 +29,28 @@ const normalizeStageRole = (role?: string | null) => {
   if (!role) return null;
   if (role === 'driver') return 'renter';
   return role;
+};
+
+const parseDocusealContractInstanceId = (payload: any): number | null => {
+  // Try to find contractInstanceId in external_id, metadata, or custom fields
+  const externalId = payload?.external_id || payload?.submission?.external_id || payload?.data?.external_id;
+  if (externalId && !isNaN(parseInt(externalId))) {
+    return parseInt(externalId);
+  }
+
+  // Check metadata if available
+  const metadata = payload?.metadata || payload?.submission?.metadata || payload?.data?.metadata;
+  if (metadata?.contractInstanceId) {
+    return parseInt(metadata.contractInstanceId);
+  }
+
+  return null;
+};
+
+const parseDocusealCompletedRole = (payload: any): string | null => {
+  // Submission response often contains the role of the person who just signed
+  const submitterRole = payload?.submitter?.role || payload?.data?.submitter?.role;
+  return normalizeStageRole(submitterRole);
 };
 
 const getDocusealSignUrlForRole = (instance: any, role: 'publisher' | 'renter') => {
