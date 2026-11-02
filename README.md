@@ -32,7 +32,11 @@ laburauto/
 - PostgreSQL - Database
 - Drizzle ORM - Type-safe SQL
 - Zod - Runtime validation
-- JWT - Authentication
+- JWT - Authentication, plus optional Authentik SSO and passwordless magic links
+- DocuSeal - e-signature for publisher enrollment and rental contracts
+- Resend - transactional email
+- dLocal - payments
+- pdf-lib - generated PDF documents and audit reports
 
 **Shared:**
 - Drizzle schema definitions
@@ -42,7 +46,7 @@ laburauto/
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ and pnpm 8+
+- Node.js and pnpm (pnpm workspaces)
 - PostgreSQL 15+ (or use Docker)
 - (Optional) Docker for containerized development
 
@@ -125,6 +129,12 @@ import { createVehicleSchema, createBookingSchema } from '@laburauto/shared/zod'
 - Used for: Automatic vehicle detection from photos
 - Cost: ~$0.01-0.02 per inference
 
+**DocuSeal** (Contracts, self-hosted via `docker compose`):
+- Used for: publisher enrollment and rental agreements, signed in-app (`/contracts`, admin template management)
+- Configure with the `DOCUSEAL_*` variables in `apps/server/.env.example`
+
+**Authentik** (optional SSO) and **Resend** (email magic links and notifications) are configured through `AUTHENTIK_*` and the email service settings in the same file.
+
 **Bytescale** (File Uploads):
 - Sign up: https://www.bytescale.com/
 - Add to `.env`: `BYTESCALE_API_KEY=public_...`
@@ -157,6 +167,7 @@ Key tables (see `packages/shared/src/schema.ts` for full schema):
 - Payment workflow
 - Real-time notifications
 - Booking status tracking
+- In-app contract signing
 
 ### Technical Features
 - **Type-safe API** with shared Zod schemas
@@ -200,10 +211,19 @@ src/
 │   ├── vehicles.ts      # Vehicle CRUD
 │   ├── vehicles-db.ts   # Vehicle database queries
 │   ├── bookings.ts      # Booking management
+│   ├── contracts.ts     # DocuSeal contracts
+│   ├── payments.ts      # Payments
+│   ├── notifications.ts # Notifications
+│   ├── applications.ts  # Publisher applications
+│   ├── photo-audits.ts  # Vehicle photo audits
+│   ├── admin.ts         # Admin: disputes, vehicle review, DocuSeal templates
 │   ├── upload.ts        # File uploads
 │   └── ai.ts            # AI inference
 ├── services/
 │   ├── bytescale.ts     # File upload service
+│   ├── docuseal.ts      # E-signature
+│   ├── dlocal.ts        # Payments
+│   ├── emailService.ts  # Email
 │   └── openrouter.ts    # AI service
 ├── db/
 │   └── schema.ts        # Re-exports from @laburauto/shared
@@ -350,10 +370,8 @@ DOCUSEAL_TEMPLATE_RENTAL_AGREEMENT_ID=...
 
 ## 📄 License
 
-[Your License]
+[MIT](LICENSE)
 
 ---
 
-**Status**: ✅ Production Ready with pnpm Workspace & Shared Types
-
-For detailed integration setup, see archived docs in `/docs` folder.
+**Status**: working end to end (publish a vehicle, book a shift, pay, sign the contract, hand off). Last active March 2026. Product requirement docs are in [`prd/`](prd/) and client notes in `apps/client/docs`.
