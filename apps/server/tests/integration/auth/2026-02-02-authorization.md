@@ -55,6 +55,6 @@ pnpm vitest run tests/integration/auth/
 
 ## Related Files
 
-- [auth.ts middleware](file:///Users/cesarrom/code/laburauto/apps/server/src/middleware/auth.ts)
-- [admin routes](file:///Users/cesarrom/code/laburauto/apps/server/src/routes/admin.ts)
-- [vehicle routes](file:///Users/cesarrom/code/laburauto/apps/server/src/routes/vehicles.ts)
+- [auth.ts middleware](../../../../../apps/server/src/middleware/auth.ts)
+- [admin routes](../../../../../apps/server/src/routes/admin.ts)
+- [vehicle routes](../../../../../apps/server/src/routes/vehicles.ts)

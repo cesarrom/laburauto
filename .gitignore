@@ -30,6 +30,9 @@ dist-ssr
 *.pem
 *.key
 service-account*.json
+
+# Local test output
+test_output*.txt
 !.env.example
 !.env.sample
 !.env.test
