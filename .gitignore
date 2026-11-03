@@ -24,3 +24,12 @@ dist-ssr
 *.sw?
 
 .env
+
+# Secrets and credentials: never commit these
+.env.*
+*.pem
+*.key
+service-account*.json
+!.env.example
+!.env.sample
+!.env.test
